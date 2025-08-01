@@ -1,0 +1,5 @@
+# ninja log v6
+16	361	7757185997997236	Engine/CMakeFiles/Engine.dir/src/cpp/main.cpp.obj	2a1714db5bcf8dc6
+24	375	7757185998078864	StarterGame/CMakeFiles/StarterGame.dir/main.cpp.obj	a00a3755bdf4a094
+363	455	7757186001470747	Engine/libEngine.a	dadf9dd337b48ebf
+455	1635	7757186002378512	C:/Users/Tim/C++Projects/GraphicsEngine/StarterGame/bin/StarterGame.exe	9950c4b919f96465
