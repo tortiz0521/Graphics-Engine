@@ -1,0 +1,18 @@
+I don't actually hate CMake, it offers a lot of compatibility between machines for C++ development!
+Now, I am still anonyed with the whole setup. So, here is a little guide for myself whenever, for whatever reason, I come back struggling to load my  project :)/):
+
+
+Visual Studio now recommends the use of a CMakePreset.json class! This preset tells whichever user is attempting to build from my project how to do so.
+The important step is this: YOU DEFINE WHAT YOUR SPECIFIC PRESETS ARE! Having some sort of GLOBAL (not really, it sits at whatever directory CMakePresets.json is at)
+preset for all of the project within a directory will prove vital! Here, I can establish specific vcpkg package installation paths for my machine, as well as the 
+target triplet I need to run whatever code is here.
+
+WHY WAS IT NOT WORKING FOR SO LONG THOUGH?!??!?
+The answer is pretty simple: assimp is very annoying... Originally, MinGW64 was tried for the build system, and it worked (for almost all of the other packages). You
+are trying to build to WINDOWS specifcally, so why not use MSVC, which has its own special IDE in the form of Visual Studio. Originally, I had an aversion to VS; I
+looked at it as if it meant I was not a good developer, as if I was above IDEs, but Visual Studio has some pretty great features for C++ game development. Namely, it
+has an ACTIVELY WORKING DEBUGGER (sort of, it still needs to be established by the vcpkg toolchain...). BUUUUT, with all of the different build tools that VS has,
+and the many helping things that VS can do, switching is nice :)
+
+Most of the problems above of course come from a bit of incompatancy, it was my first time truly building a project with CMake. I can forgive myself for the mistakes,
+so now its time to learn from them, and hopefully the entire process will be far smoother next time.

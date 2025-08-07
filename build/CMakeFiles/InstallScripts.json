@@ -1,9 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"C:/Users/Tim/C++Projects/GraphicsEngine/build/cmake_install.cmake",
-		"C:/Users/Tim/C++Projects/GraphicsEngine/build/Engine/cmake_install.cmake",
-		"C:/Users/Tim/C++Projects/GraphicsEngine/build/StarterGame/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
