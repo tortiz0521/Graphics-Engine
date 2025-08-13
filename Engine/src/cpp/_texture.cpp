@@ -27,6 +27,9 @@ void Texture::Generate(unsigned int w, unsigned int h, unsigned int format,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    // Generate mipmaps (REQUIRED to ensure that textures will load when setting mipmap filtering)
+    glGenerateMipmap(GL_TEXTURE_2D);
+
     // Unbind the texture
     glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -58,5 +61,5 @@ bool Texture::operator==(const Texture &o)
 
 Texture::~Texture()
 {
-    glDeleteTextures(1, &this->_ID);
+    //glDeleteTextures(1, &this->_ID);
 }

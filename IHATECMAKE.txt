@@ -16,3 +16,6 @@ and the many helping things that VS can do, switching is nice :)
 
 Most of the problems above of course come from a bit of incompatancy, it was my first time truly building a project with CMake. I can forgive myself for the mistakes,
 so now its time to learn from them, and hopefully the entire process will be far smoother next time.
+
+IMPORTANT NOTE:
+Assimp really doesn't work as a static library... There must be some dependency of assimp that can't be static, or somethingalonf those lines

@@ -2,7 +2,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 
 void Renderer::Draw(Model &m, Shader &s, const glm::vec3 &position,
         const glm::vec3 &size,const glm::vec3 color)
@@ -38,31 +38,26 @@ void BoxRenderer::Draw(Shader &s, const glm::vec3 &position,
     model = glm::translate(model, position);
 
     // Rotate
-    //model = glm::rotate(model, glm::radians((float)glfwGetTime() * 15.0f),
-    //    glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, glm::radians((float)glfwGetTime() * 15.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f));
 
     // Scale
     model = glm::scale(model, size);
 
     s.SetMatrix4("model", model, true);
-    GLFWwindow* compare;
-    if ((compare = glfwGetCurrentContext()) != curr)
-        std::cout << "LMAO";
 
     glBindVertexArray(this->_VAO);
-    std::cout << this->_VAO;
-    GLenum err;
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
     glBindVertexArray(0);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture(GL_TEXTURE0);
+}
+
+// Box Renderer specific functions:
+
+BoxRenderer::BoxRenderer()
+{
+    glGenVertexArrays(1, &_VAO);
 }
 
 void BoxRenderer::initRenderer()
@@ -116,64 +111,23 @@ void BoxRenderer::initRenderer()
     };
 
     std::cout << glGetString(GL_VERSION) << std::endl << glGetString(GL_VENDOR) << std::endl;
-    this->_VAO = 0;
-    glGenVertexArrays(1, &this->_VAO);
-    std::cout << this->_VAO << "\n";
-    GLenum err;
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
     glGenBuffers(1, &VBO);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
 
     glBindVertexArray(this->_VAO);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
 
     // Set the object coord
     glEnableVertexAttribArray(0);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
-
     
     // Set the tex coord
     glEnableVertexAttribArray(1);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
 
     // Set the normal coord
     glEnableVertexAttribArray(2);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
 
     glBindVertexArray(0);
-    if ((err = glGetError()) != GL_NO_ERROR) {
-        std::cout << "GOT AN ERROR::" << err << '\n';
-    }
 }

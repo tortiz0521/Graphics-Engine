@@ -63,7 +63,7 @@ std::shared_ptr<Texture> ResourceManager::LoadTexture(std::string directory, Tex
         
     unsigned char *data = stbi_load(p.c_str(), &width, &height, &nrComp, 0);
     if (data) {
-        GLenum format;
+        GLenum format = GL_RGB;
         if (nrComp == 1)
             format = GL_RED;
         else if (nrComp == 3)

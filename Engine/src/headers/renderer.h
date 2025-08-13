@@ -20,7 +20,7 @@ private:
 class BoxRenderer : Renderer
 {
 public:
-    BoxRenderer() : _VAO(0) {};
+    BoxRenderer();
     void Draw(Shader &s, const glm::vec3 &position,
         const glm::vec3 &size,const glm::vec3 color, GLFWwindow* curr);
 

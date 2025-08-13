@@ -1,6 +1,12 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
+
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 project(Engine)
+
+#set(BUILD_SHARED_LIBS off)
 
 find_package(OpenGL REQUIRED)
 
@@ -26,9 +32,6 @@ target_sources(Engine PRIVATE
     src/cpp/renderer.cpp
     src/cpp/resource_manager.cpp
 )
-
-set_property(TARGET Engine PROPERTY
-  MSVC_RUNTIME_LIBRARY "MultiThreadedDLL$<$<CONFIG:Debug>:Debug>")
 
 
 target_link_libraries(Engine PRIVATE

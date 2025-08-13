@@ -9,9 +9,14 @@ Shader& Shader::Use()
     return *this;
 }
 
+void Shader::ID()
+{
+    std::cout << _ID << '\n';
+}
+
 Shader::~Shader()
 {
-    glDeleteProgram(this->_ID);
+    //glDeleteProgram(this->_ID);
 }
 
 void Shader::Compile(const char *vSource, const char *fSource, const char *gSource)
@@ -40,7 +45,6 @@ void Shader::Compile(const char *vSource, const char *fSource, const char *gSour
 
     // Create the actual program at our program ID.
     _ID = glCreateProgram();
-    std::cout << _ID;
     glAttachShader(_ID, v);
     glAttachShader(_ID, f);
     if (gSource != nullptr)
@@ -48,6 +52,7 @@ void Shader::Compile(const char *vSource, const char *fSource, const char *gSour
     
     glLinkProgram(_ID);
     checkCompilerError(_ID, "PROGRAM");
+    ID();
 
     glDeleteShader(v);
     glDeleteShader(f);
@@ -145,6 +150,5 @@ void Shader::SetMatrix4(const char *name, const glm::mat4 &matrix, bool useShade
 {
     if (useShader)
         this->Use();
-    std::cout << this->_ID;
     glUniformMatrix4fv(glGetUniformLocation(this->_ID, name), 1, GL_FALSE, glm::value_ptr(matrix));
 }

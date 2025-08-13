@@ -25,16 +25,18 @@ void Camera::ProcessMouse(float xOff, float yOff, bool constrain)
 
 void Camera::MoveCamera(CAM_MOVEMENT m, float dt)
 {
-    //std::cout << _pos.x << ", " << _pos.y << ", " << _pos.z << '\n';
+    glm::vec3 xzLook = glm::vec3(cos(glm::radians(_yaw)), 0.0f, sin(glm::radians(_pitch)));
     float speed = dt * this->_moveSpeed;
     if (m == FORWARD)
-        this->_pos.z -= speed;
+        _pos += speed * xzLook;
     else if (m == BACKWARD)
-        this->_pos.z += speed;
+        _pos -= speed * xzLook;
     else if (m == LEFT)
-        this->_pos.x -= speed;
+        _pos -= speed * glm::normalize(glm::cross(xzLook, _up));
     else if (m == RIGHT)
-        this->_pos.x += speed;
+        _pos += speed * glm::normalize(glm::cross(xzLook, _up));
+
+    //std::cout << _pos.x << ", " << _pos.y << ", " << _pos.z << '\n';
 }
 
 const glm::mat4 Camera::GetView()
