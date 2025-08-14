@@ -30,12 +30,12 @@ public:
     ResourceManager() = default;
 
     // Load shaders/textures from their files
-    Shader LoadShader(const char *vertex, const char *fragment, const char *name, const char *geometry = nullptr);
-    std::shared_ptr<Texture> LoadTexture(std::string directory, TextureType type);
+    const std::shared_ptr<Shader>& LoadShader(const char* vertex, const char* fragment, const char* name, const char* geometry = nullptr);
+    const std::shared_ptr<Texture>& LoadTexture(std::string directory, TextureType type);
 
     // Get shaders/textures from their maps
-    Shader GetShader(const char *name);
-    std::shared_ptr<Texture> GetTexture(const char *path);
+    const std::shared_ptr<Shader>& GetShader(const char *name);
+    const std::shared_ptr<Texture>& GetTexture(const char *path);
 
     // Load models into our 'cache'/Get models from out 'cache'
     void LoadModel(const char *path);
@@ -49,14 +49,14 @@ private:
         for extracting all of the data out of a model!
     */
     void loadModel(std::string path);
-    void processNode(aiNode *node, const aiScene *scene, std::shared_ptr<LoadedModel>& m);
-    Mesh processMesh(aiMesh *mesh, const aiScene *scene, std::shared_ptr<LoadedModel>& m);
+    void processNode(aiNode *node, const aiScene *scene, const std::shared_ptr<LoadedModel>& m);
+    Mesh processMesh(aiMesh *mesh, const aiScene *scene, const std::shared_ptr<LoadedModel>& m);
     std::vector<std::shared_ptr<Texture>> processTextures(
-        aiMaterial *mat, aiTextureType aiType, TextureType type, std::shared_ptr<LoadedModel>& m
+        aiMaterial *mat, aiTextureType aiType, TextureType type, const std::shared_ptr<LoadedModel>& m
     );
 
     // Maps for textures/shaders
-    std::unordered_map<const char*, Shader> shaders;
+    std::unordered_map<const char*, std::shared_ptr<Shader>> shaders;
     std::unordered_map<const char*, std::shared_ptr<Texture>> textures;
     std::unordered_map<const char*, std::shared_ptr<LoadedModel>> models;
 };

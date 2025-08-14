@@ -3,8 +3,7 @@
 // Process an entire model!
 void ResourceManager::loadModel(std::string path)
 {
-    LoadedModel temp;
-    std::shared_ptr<LoadedModel> m = std::make_shared<LoadedModel>(temp);
+    std::shared_ptr<LoadedModel> m = std::make_shared<LoadedModel>(LoadedModel());
 
     Assimp::Importer importer;
     const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -17,11 +16,11 @@ void ResourceManager::loadModel(std::string path)
 
     m.get()->_directory = path.substr(0, path.find_last_of('/'));
     processNode(scene->mRootNode, scene, m);
-    this->models[m.get()->_directory.c_str()] = std::make_shared<LoadedModel>(*m.get());
+    this->models[m.get()->_directory.c_str()] = std::move(m);
 }
 
 void ResourceManager::processNode(
-    aiNode *node, const aiScene *scene, std::shared_ptr<LoadedModel> &m) 
+    aiNode *node, const aiScene *scene, const std::shared_ptr<LoadedModel> &m) 
 {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
@@ -34,7 +33,7 @@ void ResourceManager::processNode(
 }
 
 Mesh ResourceManager::processMesh(
-    aiMesh *mesh, const aiScene *scene, std::shared_ptr<LoadedModel> &m) 
+    aiMesh *mesh, const aiScene *scene, const std::shared_ptr<LoadedModel> &m) 
 {
     std::vector<std::shared_ptr<Texture>> texs;
     std::vector<unsigned int> indices;
@@ -46,8 +45,7 @@ Mesh ResourceManager::processMesh(
             glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z),
             glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z),
             (mesh->mTextureCoords[0]) ? 
-            glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y)
-                : glm::vec2(0.0f)
+            glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y) : glm::vec2(0.0f)
         ));
     }
 
@@ -87,7 +85,7 @@ Mesh ResourceManager::processMesh(
 }
 
 std::vector<std::shared_ptr<Texture>> ResourceManager::processTextures(
-    aiMaterial *mat, aiTextureType aiType, TextureType type, std::shared_ptr<LoadedModel> &m)
+    aiMaterial *mat, aiTextureType aiType, TextureType type, const std::shared_ptr<LoadedModel> &m)
 {
     std::vector<std::shared_ptr<Texture>> textures;
     for (unsigned int i = 0; i < mat->GetTextureCount(aiType); i++) {

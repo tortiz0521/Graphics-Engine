@@ -17,7 +17,7 @@ public:
     Model(const char *path, ResourceManager &rm); // The entry point to our loading process!
 
     // Function to draw the model!
-    void Draw(Shader &s);
+    //void Draw(Shader &s);
 
 private:
     std::vector<Mesh> _meshes;

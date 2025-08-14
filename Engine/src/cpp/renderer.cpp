@@ -4,7 +4,7 @@
 #include <glm/gtx/transform.hpp>
 //#include <GLFW/glfw3.h>
 
-void Renderer::Draw(Model &m, Shader &s, const glm::vec3 &position,
+void Renderer::Draw(Model &m, const Shader &s, const glm::vec3 &position,
         const glm::vec3 &size,const glm::vec3 color)
 {
     s.Use();
@@ -27,7 +27,7 @@ void Renderer::Draw(Model &m, Shader &s, const glm::vec3 &position,
     //m.Draw(s);
 }
 
-void BoxRenderer::Draw(Shader &s, const glm::vec3 &position,
+void BoxRenderer::Draw(const Shader &s, const glm::vec3 &position,
     const glm::vec3 &size,const glm::vec3 color, GLFWwindow *curr)
 {
     s.Use();
@@ -122,12 +122,12 @@ void BoxRenderer::initRenderer()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     
     // Set the tex coord
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 
     // Set the normal coord
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 
     glBindVertexArray(0);
 }

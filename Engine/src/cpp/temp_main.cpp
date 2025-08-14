@@ -17,7 +17,7 @@ constexpr glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 10.0f);
 constexpr glm::vec3 camFront = glm::vec3(0.0f, 0.0f, -1.0f);
 constexpr glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 constexpr float yaw = -90.0f, pitch = 0.0f;
-constexpr float moveSpeed = 2.5f, mouseSense = 0.1f;
+constexpr float moveSpeed = 25.0f, mouseSense = 0.1f;
 constexpr float fov = 45.0f;
 
 // Camera object istelf.
@@ -30,6 +30,8 @@ bool firstMouse = true;
 float lastX = (float)WIDTH / 2.0f, lastY = (float)HEIGHT / 2.0f;
 
 bool setupWindow(const unsigned int w, const unsigned int h, GLFWwindow* &window);
+void processInput(GLFWwindow* window);
+
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
@@ -58,12 +60,18 @@ int main()
     // Setup the viewport!
     glViewport(0, 0, WIDTH, HEIGHT);
     ResourceManager RM = ResourceManager();
-    std::shared_ptr<Texture> tex = RM.LoadTexture("../../assets/textures/container.jpg", NONE);
+    const std::shared_ptr<Texture> con2 = RM.LoadTexture("../../assets/textures/container2.png", NONE);
+
+    const std::shared_ptr<Texture> con2_spec = RM.LoadTexture("../../assets/textures/container2_specular.png", NONE);
 
     // Update the resource manager:
-    Shader box = RM.LoadShader("../../assets/shaders/box.vs",
+    const std::shared_ptr<Shader> box = RM.LoadShader("../../assets/shaders/box.vs",
         "../../assets/shaders/box.fs", "box");
-    box.ID();
+
+    const std::shared_ptr<Shader> standard = RM.LoadShader("../../assets/shaders/standard.vs",
+        "../../assets/shaders/standard.fs", "standard");
+
+    box.get()->ID();
 
     BoxRenderer BOX;
     BOX.initRenderer();
@@ -87,18 +95,34 @@ int main()
         last = current;
 
         glfwPollEvents();
+        processInput(window);
 
-        glClearColor(0.3f, 0.7f, 0.5f, 1.0f);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glm::mat4 projection = glm::perspective(glm::radians(cam.GetFOV()),
             (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-        box.Use();
-        box.SetMatrix4("projection", projection);
-        box.SetMatrix4("view", cam.GetView());
+        standard.get()->Use();
+        standard.get()->SetMatrix4("proj", projection);
+        standard.get()->SetMatrix4("view", cam.GetView());
+
+        standard.get()->SetInteger("numDir", 1);
+        standard.get()->SetInteger("numPoint", 0);
+        standard.get()->SetInteger("numSpot", 0);
+
+        standard.get()->SetVector3f("dirs[0].direction", glm::vec3(1.0f));
+        standard.get()->SetVector3f("dirs[0].ambient", glm::vec3(0.5f));
+        standard.get()->SetVector3f("dirs[0].diffuse", glm::vec3(0.7f));
+        standard.get()->SetVector3f("dirs[0].specular", glm::vec3(1.0f));
+
+
         glActiveTexture(GL_TEXTURE0);
-        tex.get()->Bind();
-        box.SetInteger("tex", 0);
-        BOX.Draw(box, glm::vec3(0.0f, 0.0f, -10.0f), glm::vec3(5.0f), glm::vec3(0.0f), window);
+        con2.get()->Bind();
+        standard.get()->SetInteger("mat.texture_diffuse1", 0);
+        glActiveTexture(GL_TEXTURE1);
+        con2_spec.get()->Bind();
+        standard.get()->SetInteger("mat.texture_specular1", 1);
+        standard.get()->SetFloat("mat.shininess", 64.0f);
+        BOX.Draw(*standard.get(), glm::vec3(0.0f, 0.0f, -10.0f), glm::vec3(5.0f), glm::vec3(0.0f), window);
 
         glfwSwapBuffers(window);
     }
@@ -131,27 +155,24 @@ bool setupWindow(const unsigned int w, const unsigned int h, GLFWwindow* &window
     return true;
 }
 
+void processInput(GLFWwindow *window)
+{
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cam.MoveCamera(FORWARD, dt);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cam.MoveCamera(LEFT, dt);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cam.MoveCamera(BACKWARD, dt);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cam.MoveCamera(RIGHT, dt);
+}
+
+
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode)
 {
     // When the user presses the escape key, set the WindowShouldClose function to true.
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
-    std::cout << (action == GLFW_REPEAT ? "REPEAT" : "");
-    
-    // Get key inputs and determine if they are presses or releases.
-    if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        cam.MoveCamera(FORWARD, dt);
-    }
-    if (key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        cam.MoveCamera(LEFT, dt);
-    }
-    if (key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        cam.MoveCamera(BACKWARD, dt);
-    }
-    if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        cam.MoveCamera(RIGHT, dt);
-    }
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)

@@ -1,6 +1,6 @@
 #include "../headers/resource_manager.h"
 
-Shader ResourceManager::LoadShader(const char *vertex, const char *fragment, const char *name, const char * geometry)
+const std::shared_ptr<Shader>& ResourceManager::LoadShader(const char *vertex, const char *fragment, const char *name, const char * geometry)
 {
     std::string vString, fString, gString;
     std::ifstream vfile, ffile, gfile;
@@ -37,16 +37,15 @@ Shader ResourceManager::LoadShader(const char *vertex, const char *fragment, con
     if (geometry != nullptr)
         gCode = gString.c_str();
 
-    Shader s;
-    s.Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
-    this->shaders[name] = s;
-    //this->shaders[name].Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
+    std::shared_ptr<Shader> s = std::make_shared<Shader>(Shader());
+    s.get()->Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
+    this->shaders[name] = std::move(s);
     return this->shaders[name];
 }
 
-std::shared_ptr<Texture> ResourceManager::LoadTexture(std::string directory, TextureType type)
+const std::shared_ptr<Texture>& ResourceManager::LoadTexture(std::string directory, TextureType type)
 {
-    Texture t;
+    std::shared_ptr<Texture> t = std::make_shared<Texture>(Texture());
 
     int width, height, nrComp;
     std::string p = directory;
@@ -58,8 +57,6 @@ std::shared_ptr<Texture> ResourceManager::LoadTexture(std::string directory, Tex
         else if(type == SPECULAR)
             p += "/texture_specular";
     }
-
-    std::cout << p.c_str() << '\n';
         
     unsigned char *data = stbi_load(p.c_str(), &width, &height, &nrComp, 0);
     if (data) {
@@ -71,7 +68,7 @@ std::shared_ptr<Texture> ResourceManager::LoadTexture(std::string directory, Tex
         else if (nrComp == 4)
             format = GL_RGBA;
 
-        t.Generate(width, height, format, data, type, p);
+        t.get()->Generate(width, height, format, data, type, p);
     }
     else {
         std::cout << "Here is the error: " << stbi_failure_reason() << '\n';
@@ -79,7 +76,7 @@ std::shared_ptr<Texture> ResourceManager::LoadTexture(std::string directory, Tex
     }
 
     stbi_image_free(data);
-    this->textures[p.c_str()] = std::make_shared<Texture>(t);
+    this->textures[p.c_str()] = std::move(t);
     return this->textures[p.c_str()];
 }
 
@@ -93,12 +90,12 @@ void ResourceManager::GetModel(const char *path)
     //return this->models[path];
 }
 
-Shader ResourceManager::GetShader(const char *name)
+const std::shared_ptr<Shader>& ResourceManager::GetShader(const char *name)
 {
     return this->shaders[name];
 }
 
-std::shared_ptr<Texture> ResourceManager::GetTexture(const char *path)
+const std::shared_ptr<Texture>& ResourceManager::GetTexture(const char *path)
 {
     return this->textures[path];
 }

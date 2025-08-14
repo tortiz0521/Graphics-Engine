@@ -1,4 +1,4 @@
-### Graphics Engine Project
+# Graphics Engine Project
 
 ## Purpose
 This project was built with the intent of exapnding my knowledge of graphics engine's and production code I might see in industry! While certainly not a perfect project, what I hope to learn and implement in this project are these key ideas:
@@ -12,5 +12,5 @@ This project was built with the intent of exapnding my knowledge of graphics eng
 ## Directories
 As a part of trying to design a directory that is usable across systems, I also want to ensure that any game which exists in this main directory can use the graphics engine.
 
-# Engine (PRODUCTION)
+### Engine (PRODUCTION)
 The engine itself. This is the most important aspect of the entire project. Here, the complete implementation of the engine can be found with its .h/.cpp files, along with some default shaders that any game within the directory can use.

@@ -11,7 +11,7 @@ class Renderer
 {
 public:
     Renderer() = default;
-    void Draw(Model &m, Shader &s, const glm::vec3 &position,
+    void Draw(Model &m, const Shader &s, const glm::vec3 &position,
         const glm::vec3 &size,const glm::vec3 color);
 
 private:
@@ -21,7 +21,7 @@ class BoxRenderer : Renderer
 {
 public:
     BoxRenderer();
-    void Draw(Shader &s, const glm::vec3 &position,
+    void Draw(const Shader &s, const glm::vec3 &position,
         const glm::vec3 &size,const glm::vec3 color, GLFWwindow* curr);
 
     void initRenderer();

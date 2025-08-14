@@ -4,18 +4,22 @@
 Mesh::Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && indices,
     std::vector<std::shared_ptr<Texture>> && textures)
 {
+    glGenVertexArrays(1, &_VAO);
+    glGenBuffers(1, &_VBO);
+    glGenBuffers(1, &_EBO);
+
     this->_vertices = vertices;
     this->_indices = indices;
-    this->_textures = _textures;
+    this->_textures = textures;
 }
 
-void Mesh::Draw(Shader &s)
+void Mesh::Draw(const Shader &s)
 {
     unsigned int diffNum = 1, specNum = 1, normNum = 1;
     for (unsigned int i = 0; i < this->_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         
-        std::string num, name =this->_textures[i].get()->GetType();
+        std::string num, name = this->_textures[i].get()->GetType();
         if (name == "texture_diffuse")
             num = std::to_string(diffNum++);
         else if (name == "texture_normal")
@@ -36,10 +40,6 @@ void Mesh::Draw(Shader &s)
 
 void Mesh::setupMesh()
 {
-    glGenVertexArrays(1, &this->_VAO);
-    glGenBuffers(1, &this->_VBO);
-    glGenBuffers(1, &this->_EBO);
-
     // Needs to be bounds first so that the buffer data is set to the appropriate VAO.
     glBindVertexArray(this->_VAO);
 
@@ -61,5 +61,4 @@ void Mesh::setupMesh()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 
     glBindVertexArray(0);
-
 }

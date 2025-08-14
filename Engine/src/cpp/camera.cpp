@@ -25,7 +25,10 @@ void Camera::ProcessMouse(float xOff, float yOff, bool constrain)
 
 void Camera::MoveCamera(CAM_MOVEMENT m, float dt)
 {
-    glm::vec3 xzLook = glm::vec3(cos(glm::radians(_yaw)), 0.0f, sin(glm::radians(_pitch)));
+    glm::vec3 xzLook = glm::normalize(
+        glm::vec3(cos(glm::radians(_yaw)), 0.0f, sin(glm::radians(_yaw)))
+    );
+
     float speed = dt * this->_moveSpeed;
     if (m == FORWARD)
         _pos += speed * xzLook;
