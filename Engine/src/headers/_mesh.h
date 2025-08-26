@@ -5,7 +5,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <vector>
-#include <memory>
+//#include <memory>
 #include "_texture.h"
 #include "_shader.h"
 
@@ -23,7 +23,7 @@ class Mesh
 {
 public:
     Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && inidces,
-        std::vector<std::shared_ptr<Texture>> && textures);
+        std::vector<Texture> && textures);
 
     void Draw(const Shader &s); // Add the specific renderer that we are going to use to the param list!
 
@@ -31,7 +31,7 @@ private:
     unsigned int _VAO, _VBO, _EBO;
     std::vector<Vertex> _vertices;
     std::vector<unsigned int> _indices;
-    std::vector<std::shared_ptr<Texture>> _textures;
+    std::vector<Texture> _textures;
 
     void setupMesh();
 };

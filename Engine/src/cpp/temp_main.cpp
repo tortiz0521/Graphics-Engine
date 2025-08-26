@@ -60,18 +60,17 @@ int main()
     // Setup the viewport!
     glViewport(0, 0, WIDTH, HEIGHT);
     ResourceManager RM = ResourceManager();
-    const std::shared_ptr<Texture> con2 = RM.LoadTexture("../../assets/textures/container2.png", NONE);
+    const Texture& con2 = RM.LoadTexture("../../assets/textures/container2.png", NONE);
 
-    const std::shared_ptr<Texture> con2_spec = RM.LoadTexture("../../assets/textures/container2_specular.png", NONE);
+    const Texture& con2_spec = RM.LoadTexture("../../assets/textures/container2_specular.png", NONE);
 
     // Update the resource manager:
-    const std::shared_ptr<Shader> box = RM.LoadShader("../../assets/shaders/box.vs",
+    const Shader& box = RM.LoadShader("../../assets/shaders/box.vs",
         "../../assets/shaders/box.fs", "box");
 
-    const std::shared_ptr<Shader> standard = RM.LoadShader("../../assets/shaders/standard.vs",
+    const Shader& standard = RM.LoadShader("../../assets/shaders/standard.vs",
         "../../assets/shaders/standard.fs", "standard");
 
-    box.get()->ID();
 
     BoxRenderer BOX;
     BOX.initRenderer();
@@ -101,28 +100,28 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glm::mat4 projection = glm::perspective(glm::radians(cam.GetFOV()),
             (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-        standard.get()->Use();
-        standard.get()->SetMatrix4("proj", projection);
-        standard.get()->SetMatrix4("view", cam.GetView());
+        standard.Use();
+        standard.SetMatrix4("proj", projection);
+        standard.SetMatrix4("view", cam.GetView());
 
-        standard.get()->SetInteger("numDir", 1);
-        standard.get()->SetInteger("numPoint", 0);
-        standard.get()->SetInteger("numSpot", 0);
+        standard.SetInteger("numDir", 1);
+        standard.SetInteger("numPoint", 0);
+        standard.SetInteger("numSpot", 0);
 
-        standard.get()->SetVector3f("dirs[0].direction", glm::vec3(1.0f));
-        standard.get()->SetVector3f("dirs[0].ambient", glm::vec3(0.5f));
-        standard.get()->SetVector3f("dirs[0].diffuse", glm::vec3(0.7f));
-        standard.get()->SetVector3f("dirs[0].specular", glm::vec3(1.0f));
+        standard.SetVector3f("dirs[0].direction", glm::vec3(1.0f));
+        standard.SetVector3f("dirs[0].ambient", glm::vec3(0.5f));
+        standard.SetVector3f("dirs[0].diffuse", glm::vec3(0.7f));
+        standard.SetVector3f("dirs[0].specular", glm::vec3(1.0f));
 
 
         glActiveTexture(GL_TEXTURE0);
-        con2.get()->Bind();
-        standard.get()->SetInteger("mat.texture_diffuse1", 0);
+        con2.Bind();
+        standard.SetInteger("mat.texture_diffuse1", 0);
         glActiveTexture(GL_TEXTURE1);
-        con2_spec.get()->Bind();
-        standard.get()->SetInteger("mat.texture_specular1", 1);
-        standard.get()->SetFloat("mat.shininess", 64.0f);
-        BOX.Draw(*standard.get(), glm::vec3(0.0f, 0.0f, -10.0f), glm::vec3(5.0f), glm::vec3(0.0f), window);
+        con2_spec.Bind();
+        standard.SetInteger("mat.texture_specular1", 1);
+        standard.SetFloat("mat.shininess", 64.0f);
+        BOX.Draw(standard, glm::vec3(0.0f, 0.0f, -10.0f), glm::vec3(5.0f), glm::vec3(0.0f), window);
 
         glfwSwapBuffers(window);
     }

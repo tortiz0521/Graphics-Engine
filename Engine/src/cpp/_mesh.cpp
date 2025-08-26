@@ -2,7 +2,7 @@
 
 
 Mesh::Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && indices,
-    std::vector<std::shared_ptr<Texture>> && textures)
+    std::vector<Texture> && textures)
 {
     glGenVertexArrays(1, &_VAO);
     glGenBuffers(1, &_VBO);
@@ -19,7 +19,8 @@ void Mesh::Draw(const Shader &s)
     for (unsigned int i = 0; i < this->_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         
-        std::string num, name = this->_textures[i].get()->GetType();
+        std::string num;
+        const std::string name = _textures[i].GetType();
         if (name == "texture_diffuse")
             num = std::to_string(diffNum++);
         else if (name == "texture_normal")
@@ -28,7 +29,7 @@ void Mesh::Draw(const Shader &s)
             num = std::to_string(specNum++);
 
         s.SetInteger(("material." + name + num).c_str(), i, true);
-        this->_textures[i].get()->Bind();
+        _textures[i].Bind();
     }
 
     glBindVertexArray(this->_VAO);

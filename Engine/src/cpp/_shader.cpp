@@ -9,11 +9,6 @@ const Shader& Shader::Use() const
     return *this;
 }
 
-void Shader::ID()
-{
-    std::cout << _ID << '\n';
-}
-
 Shader::~Shader()
 {
     //glDeleteProgram(this->_ID);
@@ -52,7 +47,6 @@ void Shader::Compile(const char *vSource, const char *fSource, const char *gSour
     
     glLinkProgram(_ID);
     checkCompilerError(_ID, "PROGRAM");
-    ID();
 
     glDeleteShader(v);
     glDeleteShader(f);

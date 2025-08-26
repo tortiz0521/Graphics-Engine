@@ -24,22 +24,34 @@ struct LoadedModel {
     std::string _directory;
 };
 
+enum LightType {
+    DIRECTION,
+    POINT,
+    SPOT
+};
+
+struct Light {
+    LightType type;
+    glm::vec3 Pos;
+    glm::vec3 Dir;
+};
+
 class ResourceManager
 {
 public:
     ResourceManager() = default;
 
     // Load shaders/textures from their files
-    const std::shared_ptr<Shader>& LoadShader(const char* vertex, const char* fragment, const char* name, const char* geometry = nullptr);
-    const std::shared_ptr<Texture>& LoadTexture(std::string directory, TextureType type);
+    const Shader& LoadShader(const char* vertex, const char* fragment, const char* name, const char* geometry = nullptr);
+    const Texture& LoadTexture(std::string directory, TextureType type);
 
     // Get shaders/textures from their maps
-    const std::shared_ptr<Shader>& GetShader(const char *name);
-    const std::shared_ptr<Texture>& GetTexture(const char *path);
+    const Shader& GetShader(const char *name);
+    const Texture& GetTexture(const char *path);
 
     // Load models into our 'cache'/Get models from out 'cache'
-    void LoadModel(const char *path);
-    void GetModel(const char *path);
+    const LoadedModel& LoadModel(const char *path);
+    const LoadedModel& GetModel(const char *path);
 
 private:
     /*  
@@ -49,16 +61,16 @@ private:
         for extracting all of the data out of a model!
     */
     void loadModel(std::string path);
-    void processNode(aiNode *node, const aiScene *scene, const std::shared_ptr<LoadedModel>& m);
-    Mesh processMesh(aiMesh *mesh, const aiScene *scene, const std::shared_ptr<LoadedModel>& m);
-    std::vector<std::shared_ptr<Texture>> processTextures(
-        aiMaterial *mat, aiTextureType aiType, TextureType type, const std::shared_ptr<LoadedModel>& m
+    void processNode(aiNode *node, const aiScene *scene, LoadedModel& m);
+    Mesh processMesh(aiMesh *mesh, const aiScene *scene, LoadedModel& m);
+    std::vector<Texture> processTextures(
+        aiMaterial *mat, aiTextureType aiType, TextureType type, LoadedModel& m
     );
 
     // Maps for textures/shaders
-    std::unordered_map<const char*, std::shared_ptr<Shader>> shaders;
-    std::unordered_map<const char*, std::shared_ptr<Texture>> textures;
-    std::unordered_map<const char*, std::shared_ptr<LoadedModel>> models;
+    std::unordered_map<const char*, std::unique_ptr<Shader>> shaders;
+    std::unordered_map<const char*, std::unique_ptr<Texture>> textures;
+    std::unordered_map<const char*, std::unique_ptr<LoadedModel>> models;
 };
 
 #endif

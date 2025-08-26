@@ -3,7 +3,7 @@
 // Process an entire model!
 void ResourceManager::loadModel(std::string path)
 {
-    std::shared_ptr<LoadedModel> m = std::make_shared<LoadedModel>(LoadedModel());
+    LoadedModel m = LoadedModel();
 
     Assimp::Importer importer;
     const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -14,17 +14,17 @@ void ResourceManager::loadModel(std::string path)
         return;
     }
 
-    m.get()->_directory = path.substr(0, path.find_last_of('/'));
+    m._directory = path.substr(0, path.find_last_of('/'));
     processNode(scene->mRootNode, scene, m);
-    this->models[m.get()->_directory.c_str()] = std::move(m);
+    this->models[m._directory.c_str()] = std::make_unique<LoadedModel>(m);
 }
 
 void ResourceManager::processNode(
-    aiNode *node, const aiScene *scene, const std::shared_ptr<LoadedModel> &m) 
+    aiNode *node, const aiScene *scene, LoadedModel &m) 
 {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        m.get()->_meshes.push_back(processMesh(mesh, scene, m));
+        m._meshes.push_back(processMesh(mesh, scene, m));
     }
 
     for (unsigned int i = 0; i< node->mNumMeshes; i++) {
@@ -33,9 +33,9 @@ void ResourceManager::processNode(
 }
 
 Mesh ResourceManager::processMesh(
-    aiMesh *mesh, const aiScene *scene, const std::shared_ptr<LoadedModel> &m) 
+    aiMesh *mesh, const aiScene *scene, LoadedModel &m) 
 {
-    std::vector<std::shared_ptr<Texture>> texs;
+    std::vector<Texture> texs;
     std::vector<unsigned int> indices;
     std::vector<Vertex> verts;
 
@@ -61,7 +61,7 @@ Mesh ResourceManager::processMesh(
         aiMaterial *mat = scene->mMaterials[mesh->mMaterialIndex];
 
         // Load the diffuse maps from the scenes material
-        std::vector<std::shared_ptr<Texture>> maps = processTextures(
+        std::vector<Texture> maps = processTextures(
             mat, aiTextureType_DIFFUSE, DIFFUSE, m
         );
         texs.insert(texs.end(), maps.begin(), maps.end());
@@ -81,26 +81,24 @@ Mesh ResourceManager::processMesh(
         maps.shrink_to_fit();
     }
 
-    return Mesh(std::move(verts), std::move(indices), std::move(texs));
+    return Mesh (std::move(verts), std::move(indices), std::move(texs));
 }
 
-std::vector<std::shared_ptr<Texture>> ResourceManager::processTextures(
-    aiMaterial *mat, aiTextureType aiType, TextureType type, const std::shared_ptr<LoadedModel> &m)
+std::vector<Texture> ResourceManager::processTextures(
+    aiMaterial *mat, aiTextureType aiType, TextureType type, LoadedModel &m)
 {
-    std::vector<std::shared_ptr<Texture>> textures;
+    std::vector<Texture> textures;
     for (unsigned int i = 0; i < mat->GetTextureCount(aiType); i++) {
         aiString s;
         mat->GetTexture(aiType, i, &s);
 
-        std::string path = m.get()->_directory + "/" + std::string(s.C_Str());
-
-        if(auto t = GetTexture(path.c_str())) {
-            textures.push_back(t);
-        } 
+        std::string path = m._directory + "/" + std::string(s.C_Str());
+        auto &tex = this->textures[path.c_str()];
+        if (!tex) {
+            textures.push_back(LoadTexture(m._directory, type));
+        }
         else {
-            t = LoadTexture(m.get()->_directory, type);
-            textures.push_back(t);
-            this->textures[path.c_str()] = std::make_shared<Texture>(*t.get());
+            textures.push_back(*tex.get());
         }
     }
 

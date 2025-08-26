@@ -1,6 +1,6 @@
 #include "../headers/resource_manager.h"
 
-const std::shared_ptr<Shader>& ResourceManager::LoadShader(const char *vertex, const char *fragment, const char *name, const char * geometry)
+const Shader& ResourceManager::LoadShader(const char *vertex, const char *fragment, const char *name, const char * geometry)
 {
     std::string vString, fString, gString;
     std::ifstream vfile, ffile, gfile;
@@ -37,15 +37,15 @@ const std::shared_ptr<Shader>& ResourceManager::LoadShader(const char *vertex, c
     if (geometry != nullptr)
         gCode = gString.c_str();
 
-    std::shared_ptr<Shader> s = std::make_shared<Shader>(Shader());
-    s.get()->Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
-    this->shaders[name] = std::move(s);
-    return this->shaders[name];
+    Shader s = Shader();
+    s.Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
+    shaders[name] = std::make_unique<Shader>(s);
+    return *shaders[name];
 }
 
-const std::shared_ptr<Texture>& ResourceManager::LoadTexture(std::string directory, TextureType type)
+const Texture& ResourceManager::LoadTexture(std::string directory, TextureType type)
 {
-    std::shared_ptr<Texture> t = std::make_shared<Texture>(Texture());
+    Texture t = Texture();
 
     int width, height, nrComp;
     std::string p = directory;
@@ -68,7 +68,7 @@ const std::shared_ptr<Texture>& ResourceManager::LoadTexture(std::string directo
         else if (nrComp == 4)
             format = GL_RGBA;
 
-        t.get()->Generate(width, height, format, data, type, p);
+        t.Generate(width, height, format, data, type, p);
     }
     else {
         std::cout << "Here is the error: " << stbi_failure_reason() << '\n';
@@ -76,26 +76,27 @@ const std::shared_ptr<Texture>& ResourceManager::LoadTexture(std::string directo
     }
 
     stbi_image_free(data);
-    this->textures[p.c_str()] = std::move(t);
-    return this->textures[p.c_str()];
+    textures[p.c_str()] = std::make_unique<Texture>(t);
+    return *textures[p.c_str()];
 }
 
-void ResourceManager::LoadModel(const char *path)
+const LoadedModel& ResourceManager::LoadModel(const char *path)
 {
-    this->loadModel(path);
+    loadModel(path);
+    return *models[path];
 }
 
-void ResourceManager::GetModel(const char *path)
+const LoadedModel& ResourceManager::GetModel(const char *path)
 {
-    //return this->models[path];
+    return *models[path];
 }
 
-const std::shared_ptr<Shader>& ResourceManager::GetShader(const char *name)
+const Shader& ResourceManager::GetShader(const char *name)
 {
-    return this->shaders[name];
+    return *shaders[name];
 }
 
-const std::shared_ptr<Texture>& ResourceManager::GetTexture(const char *path)
+const Texture& ResourceManager::GetTexture(const char *path)
 {
-    return this->textures[path];
+    return *textures[path];
 }

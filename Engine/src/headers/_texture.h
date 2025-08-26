@@ -26,9 +26,9 @@ public:
     void Generate(unsigned int w, unsigned int h, unsigned int format,
         unsigned char *data, TextureType type, std::string &path);
     // Binds the texture as the current active 'GL_TEXTURE_2D' texture object.
-    void Bind();
+    void Bind() const;
 
-    std::string GetType();
+    const std::string GetType() const;
     bool ComparePath(const char *o);
 
     bool operator==(const Texture &o);

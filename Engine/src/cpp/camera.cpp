@@ -66,5 +66,5 @@ void Camera::updateCameraFront()
     direction.z = glm::sin(glm::radians(this->_yaw)) * glm::cos(glm::radians(this->_pitch));
 
     this->_front = glm::normalize(direction);
-    std::cout << _front.x << ", " << _front.y << ", " << _front.z << '\n';
+    //std::cout << _front.x << ", " << _front.y << ", " << _front.z << '\n';
 }

@@ -34,12 +34,12 @@ void Texture::Generate(unsigned int w, unsigned int h, unsigned int format,
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::Bind()
+void Texture::Bind() const
 {
     glBindTexture(GL_TEXTURE_2D, this->_ID);
 }
 
-std::string Texture::GetType()
+const std::string Texture::GetType() const
 {
     if (this->_type == DIFFUSE)
         return "texture_diffuse";

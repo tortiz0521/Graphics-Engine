@@ -31,8 +31,6 @@ public:
     void SetVector4f(const char *name, const glm::vec4 &value, bool useShader = true) const;
     void SetMatrix4(const char *name, const glm::mat4 &matrix, bool useShader = true) const;
 
-    void ID();
-
 private:
     // Shader ID
     unsigned int _ID;

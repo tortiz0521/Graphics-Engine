@@ -2,12 +2,13 @@
     "version": 3,
     "configurePresets": [
       {
-        "name": "vcpkg",
+        "name": "Default",
         "generator": "Visual Studio 17 2022",
         "binaryDir": "${sourceDir}/build",
         "hidden": false,
         "cacheVariables": {
-          "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+          "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+          "CMAKE_CONFIGURATION_TYPES": "Debug;Release"
         }
       }
     ]

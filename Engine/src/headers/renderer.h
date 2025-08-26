@@ -11,10 +11,14 @@ class Renderer
 {
 public:
     Renderer() = default;
-    void Draw(Model &m, const Shader &s, const glm::vec3 &position,
+
+    virtual void Draw(Model &m, const Shader &s, const glm::vec3 &position,
         const glm::vec3 &size,const glm::vec3 color);
 
+    void InitRenderer();
+
 private:
+    //std::unique_ptr<GLFWwindow> m_window = nullptr;
 };
 
 class BoxRenderer : Renderer
