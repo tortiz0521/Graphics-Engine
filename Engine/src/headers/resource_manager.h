@@ -4,6 +4,7 @@
 
 #include "stb_image.h"
 #include <unordered_map>
+#include <string_view>
 #include <memory>
 #include <sstream>
 #include <fstream>
@@ -19,9 +20,16 @@
 #include "_texture.h"
 #include "_mesh.h"
 
+struct TransparentHasher {
+    using is_transparent = void; // Signals to std library containers that we are using a transparent comparator.
+    size_t operator()(std::string_view sv) const {
+        return std::hash<std::string_view>{}(sv);
+    }
+};
+
 struct LoadedModel {
     std::vector<Mesh> _meshes;
-    std::string _directory;
+    std::string_view _directory;
 };
 
 enum LightType {
@@ -42,16 +50,16 @@ public:
     ResourceManager() = default;
 
     // Load shaders/textures from their files
-    const Shader& LoadShader(const char* vertex, const char* fragment, const char* name, const char* geometry = nullptr);
+    const Shader& LoadShader(const char* vertex, const char* fragment, std::string_view name, const char* geometry = nullptr);
     const Texture& LoadTexture(std::string directory, TextureType type);
 
     // Get shaders/textures from their maps
-    const Shader& GetShader(const char *name);
-    const Texture& GetTexture(const char *path);
+    const Shader& GetShader(std::string_view name);
+    const Texture& GetTexture(std::string_view path);
 
     // Load models into our 'cache'/Get models from out 'cache'
-    const LoadedModel& LoadModel(const char *path);
-    const LoadedModel& GetModel(const char *path);
+    const LoadedModel& LoadModel(std::string_view path);
+    const LoadedModel& GetModel(std::string_view path);
 
 private:
     /*  
@@ -60,7 +68,7 @@ private:
         This creates a parent-child relationship with meshes. What we see here is a recursive process
         for extracting all of the data out of a model!
     */
-    void loadModel(std::string path);
+    void loadModel(std::string_view path);
     void processNode(aiNode *node, const aiScene *scene, LoadedModel& m);
     Mesh processMesh(aiMesh *mesh, const aiScene *scene, LoadedModel& m);
     std::vector<Texture> processTextures(
@@ -68,9 +76,9 @@ private:
     );
 
     // Maps for textures/shaders
-    std::unordered_map<const char*, std::unique_ptr<Shader>> shaders;
-    std::unordered_map<const char*, std::unique_ptr<Texture>> textures;
-    std::unordered_map<const char*, std::unique_ptr<LoadedModel>> models;
+    std::unordered_map<std::string, std::unique_ptr<Shader>, TransparentHasher, std::eqaul_to<>> shaders;
+    std::unordered_map<std::string, std::unique_ptr<Texture>, std::less<>> textures;
+    std::unordered_map<std::string, std::unique_ptr<LoadedModel>, std::less<>> models;
 };
 
 #endif

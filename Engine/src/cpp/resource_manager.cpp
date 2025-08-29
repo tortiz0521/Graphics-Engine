@@ -1,6 +1,6 @@
 #include "../headers/resource_manager.h"
 
-const Shader& ResourceManager::LoadShader(const char *vertex, const char *fragment, const char *name, const char * geometry)
+const Shader& ResourceManager::LoadShader(const char *vertex, const char *fragment, std::string_view name, const char * geometry)
 {
     std::string vString, fString, gString;
     std::ifstream vfile, ffile, gfile;
@@ -39,24 +39,24 @@ const Shader& ResourceManager::LoadShader(const char *vertex, const char *fragme
 
     Shader s = Shader();
     s.Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
-    shaders[name] = std::make_unique<Shader>(s);
-    return *shaders[name];
+    shaders[static_cast<std::string>(name)] = std::make_unique<Shader>(s);
+    return *shaders[static_cast<std::string>(name)];
 }
 
-const Texture& ResourceManager::LoadTexture(std::string directory, TextureType type)
+const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
 {
     Texture t = Texture();
 
     int width, height, nrComp;
-    std::string p = directory;
-    if (type != NONE) {
+    //std::string p = directory;
+    /*if (type != NONE) {
         if (type == DIFFUSE)
             p += "/texture_diffuse";
         else if (type == NORMAL)
             p += "/texture_normal";
         else if(type == SPECULAR)
             p += "/texture_specular";
-    }
+    }*/
         
     unsigned char *data = stbi_load(p.c_str(), &width, &height, &nrComp, 0);
     if (data) {
@@ -80,23 +80,25 @@ const Texture& ResourceManager::LoadTexture(std::string directory, TextureType t
     return *textures[p.c_str()];
 }
 
-const LoadedModel& ResourceManager::LoadModel(const char *path)
+const LoadedModel& ResourceManager::LoadModel(std::string_view path)
 {
-    loadModel(path);
+    loadModel(static_cast<std::string>(path));
+    std::cout << "LOAD MODEL @ PATH '" << path << "': ";
+    std::cout << this->models.find(path).get()->_directory;
+    return *models[static_cast<std::string>(path)].get();
+}
+
+const LoadedModel& ResourceManager::GetModel(std::string_view path)
+{
     return *models[path];
 }
 
-const LoadedModel& ResourceManager::GetModel(const char *path)
+const Shader& ResourceManager::GetShader(std::string_view name)
 {
-    return *models[path];
+    return *shaders[static_cast<std::string>(name)];
 }
 
-const Shader& ResourceManager::GetShader(const char *name)
+const Texture& ResourceManager::GetTexture(std::string_view path)
 {
-    return *shaders[name];
-}
-
-const Texture& ResourceManager::GetTexture(const char *path)
-{
-    return *textures[path];
+    return *textures[static_cast<std::string>(path)];
 }

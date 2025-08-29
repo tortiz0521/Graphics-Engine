@@ -5,14 +5,14 @@
 #include <memory>
 #include <glad/glad.h>
 
-#include "_model.h"
+#include "resource_manager.h"
 
 class Renderer
 {
 public:
     Renderer() = default;
 
-    virtual void Draw(Model &m, const Shader &s, const glm::vec3 &position,
+    virtual void Draw(const LoadedModel &m, const Shader &s, const glm::vec3 &position,
         const glm::vec3 &size,const glm::vec3 color);
 
     void InitRenderer();

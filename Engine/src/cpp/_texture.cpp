@@ -15,8 +15,6 @@ void Texture::Generate(unsigned int w, unsigned int h, unsigned int format,
     //this->_ID = 0;
 
     // Create the texture
-    //glGenTextures(1, &this->_ID);
-    std::cout << _ID;
     glBindTexture(GL_TEXTURE_2D, this->_ID);
     glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 
         0, format, GL_UNSIGNED_BYTE, data);

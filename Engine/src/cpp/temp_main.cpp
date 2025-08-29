@@ -71,7 +71,10 @@ int main()
     const Shader& standard = RM.LoadShader("../../assets/shaders/standard.vs",
         "../../assets/shaders/standard.fs", "standard");
 
+    const LoadedModel& backpack = RM.LoadModel("../../assets/backpack");
+    std::cout << backpack._meshes.size();
 
+    Renderer r;
     BoxRenderer BOX;
     BOX.initRenderer();
 
@@ -112,6 +115,8 @@ int main()
         standard.SetVector3f("dirs[0].ambient", glm::vec3(0.5f));
         standard.SetVector3f("dirs[0].diffuse", glm::vec3(0.7f));
         standard.SetVector3f("dirs[0].specular", glm::vec3(1.0f));
+
+        r.Draw(backpack, standard, glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(1.0f), glm::vec3(0.0f));
 
 
         glActiveTexture(GL_TEXTURE0);

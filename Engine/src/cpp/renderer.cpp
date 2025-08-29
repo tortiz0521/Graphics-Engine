@@ -4,10 +4,12 @@
 #include <glm/gtx/transform.hpp>
 //#include <GLFW/glfw3.h>
 
-void Renderer::Draw(Model &m, const Shader &s, const glm::vec3 &position,
+void Renderer::Draw(const LoadedModel &m, const Shader &s, const glm::vec3 &position,
         const glm::vec3 &size,const glm::vec3 color)
 {
     s.Use();
+
+    std::cout << "HERE: " << m._meshes.size() << '\n';
 
     glm::mat4 model = glm::mat4(1.0f);
 
@@ -23,7 +25,10 @@ void Renderer::Draw(Model &m, const Shader &s, const glm::vec3 &position,
 
     s.SetMatrix4("model", model, true);
 
-    glActiveTexture(GL_TEXTURE0);
+    //glActiveTexture(GL_TEXTURE0);
+    for (Mesh mesh : m._meshes) {
+        mesh.Draw(s);
+    }
     //m.Draw(s);
 }
 

@@ -28,7 +28,7 @@ void Mesh::Draw(const Shader &s)
         else if (name == "texture_specular")
             num = std::to_string(specNum++);
 
-        s.SetInteger(("material." + name + num).c_str(), i, true);
+        s.SetInteger(("mat." + name + num).c_str(), i, true);
         _textures[i].Bind();
     }
 
