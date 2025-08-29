@@ -6,9 +6,9 @@ void ResourceManager::loadModel(std::string_view path)
     LoadedModel m = LoadedModel();
 
     std::string temp(path);
-    temp += temp.substr(temp.find_last_of('/'), temp.length() - 1) + ".obj";
     Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(temp, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene *scene = importer.ReadFile(temp + temp.substr(temp.find_last_of('/'), temp.length() - 1) + ".obj",
+        aiProcess_Triangulate | aiProcess_FlipUVs);
 
     // Check to see that the scene was able to load the model properly.
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -16,10 +16,11 @@ void ResourceManager::loadModel(std::string_view path)
         return;
     }
 
-    m._directory.swap(path);
+    m._name = temp;
     processNode(scene->mRootNode, scene, m);
     this->models[temp] = std::make_unique<LoadedModel>(m);
-    std::cout << this->models[temp].get()->_meshes.size();
+    std::cout << m._name << " THEN " << path << "\n";
+    std::cout << this->models.find(path)->second.get()->_name << '\n';
 }
 
 void ResourceManager::processNode(
@@ -95,7 +96,7 @@ std::vector<Texture> ResourceManager::processTextures(
         aiString s;
         mat->GetTexture(aiType, i, &s);
 
-        std::string path = static_cast<std::string>(m._directory) + "/" + std::string(s.C_Str());
+        std::string path = m._name + "/" + std::string(s.C_Str());
         auto &tex = this->textures[path.c_str()];
         if (!tex) {
             textures.push_back(LoadTexture(path, type));

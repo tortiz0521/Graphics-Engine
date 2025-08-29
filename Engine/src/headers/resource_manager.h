@@ -29,7 +29,7 @@ struct TransparentHasher {
 
 struct LoadedModel {
     std::vector<Mesh> _meshes;
-    std::string_view _directory;
+    std::string _name;
 };
 
 enum LightType {

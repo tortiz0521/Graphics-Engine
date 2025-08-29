@@ -82,23 +82,22 @@ const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
 
 const LoadedModel& ResourceManager::LoadModel(std::string_view path)
 {
-    loadModel(static_cast<std::string>(path));
-    std::cout << "LOAD MODEL @ PATH '" << path << "': ";
-    std::cout << this->models.find(path).get()->_directory;
-    return *models[static_cast<std::string>(path)].get();
+    loadModel(path);
+
+    return *models.find(path)->second.get();
 }
 
 const LoadedModel& ResourceManager::GetModel(std::string_view path)
 {
-    return *models[path];
+    return *models.find(path)->second.get();
 }
 
 const Shader& ResourceManager::GetShader(std::string_view name)
 {
-    return *shaders[static_cast<std::string>(name)];
+    return *shaders.find(name)->second.get();
 }
 
 const Texture& ResourceManager::GetTexture(std::string_view path)
 {
-    return *textures[static_cast<std::string>(path)];
+    return *textures.find(path)->second.get();
 }
