@@ -76,9 +76,9 @@ private:
     );
 
     // Maps for textures/shaders
-    std::unordered_map<std::string, std::unique_ptr<Shader>, TransparentHasher, std::eqaul_to<>> shaders;
-    std::unordered_map<std::string, std::unique_ptr<Texture>, std::less<>> textures;
-    std::unordered_map<std::string, std::unique_ptr<LoadedModel>, std::less<>> models;
+    std::unordered_map<std::string, std::unique_ptr<Shader>, TransparentHasher, std::equal_to<>> shaders;
+    std::unordered_map<std::string, std::unique_ptr<Texture>, TransparentHasher, std::equal_to<>> textures;
+    std::unordered_map<std::string, std::unique_ptr<LoadedModel>, TransparentHasher, std::equal_to<>> models;
 };
 
 #endif
