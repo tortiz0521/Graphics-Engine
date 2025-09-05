@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <string_view>
 #include <memory>
+#include <any>
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -19,11 +20,26 @@
 #include "_shader.h"
 #include "_texture.h"
 #include "_mesh.h"
+#include "_ubo.h"
 
 struct TransparentHasher {
     using is_transparent = void; // Signals to std library containers that we are using a transparent comparator.
     size_t operator()(std::string_view sv) const {
         return std::hash<std::string_view>{}(sv);
+    }
+};
+
+struct IDHasher {
+    using is_transparent = void;
+    std::size_t operator()(const std::string_view& sv) const noexcept {
+        size_t h = std::hash<std::string_view>{}(sv);
+        return static_cast<uint32_t>(h);
+    }
+};
+
+struct IDEqual {
+    bool operator()(const uint32_t& a, const uint32_t& b) {
+        return a == b;
     }
 };
 
@@ -52,16 +68,24 @@ public:
     // Load shaders/textures from their files
     const Shader& LoadShader(const char* vertex, const char* fragment, std::string_view name, const char* geometry = nullptr);
     const Texture& LoadTexture(std::string directory, TextureType type);
+    const LoadedModel& LoadModel(std::string_view path);
 
     // Get shaders/textures from their maps
     const Shader& GetShader(std::string_view name);
     const Texture& GetTexture(std::string_view path);
-
-    // Load models into our 'cache'/Get models from out 'cache'
-    const LoadedModel& LoadModel(std::string_view path);
     const LoadedModel& GetModel(std::string_view path);
 
+    template<typename T>
+    const UniformBuffer<T>& UBOUpdateStruct(T& data);
+
+    template<typename T>
+    const UniformBuffer<T>& UBOUpdateField(size_t offset, size_t size, const void* data);
+
 private:
+    // Logic for creating a Uniform Buffer Object...
+    template<typename T> const UniformBuffer<T>& loadUniformBuffer(std::string_view path);
+    template<typename T> const UniformBuffer<T>& getUniformBuffer(uint32_t ID);
+
     /*  
         IMPORTANT NOTE: Each node contains meshes that exist in the scene to allow for reusability!
         A mesh exists as a member of a scene, but each node controls its own meshes transform data.
@@ -79,6 +103,11 @@ private:
     std::unordered_map<std::string, std::unique_ptr<Shader>, TransparentHasher, std::equal_to<>> shaders;
     std::unordered_map<std::string, std::unique_ptr<Texture>, TransparentHasher, std::equal_to<>> textures;
     std::unordered_map<std::string, std::unique_ptr<LoadedModel>, TransparentHasher, std::equal_to<>> models;
+
+    std::unordered_map<uint32_t, std::unique_ptr<Shader>, IDHasher, IDEqual> m_shaders;
+    std::unordered_map<uint32_t, std::unique_ptr<Texture>, IDHasher, IDEqual> m_textures;
+    std::unordered_map<uint32_t, std::unique_ptr<LoadedModel>, IDHasher, IDEqual> m_models;
+    std::unordered_map<uint32_t, std::unique_ptr<std::any>, IDHasher, IDEqual> m_ubos;
 };
 
 #endif

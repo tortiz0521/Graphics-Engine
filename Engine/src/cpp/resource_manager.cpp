@@ -40,7 +40,7 @@ const Shader& ResourceManager::LoadShader(const char *vertex, const char *fragme
     Shader s = Shader();
     s.Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
     shaders[static_cast<std::string>(name)] = std::make_unique<Shader>(s);
-    return *shaders[static_cast<std::string>(name)];
+    return *shaders.find(name)->second.get();
 }
 
 const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
@@ -48,15 +48,6 @@ const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
     Texture t = Texture();
 
     int width, height, nrComp;
-    //std::string p = directory;
-    /*if (type != NONE) {
-        if (type == DIFFUSE)
-            p += "/texture_diffuse";
-        else if (type == NORMAL)
-            p += "/texture_normal";
-        else if(type == SPECULAR)
-            p += "/texture_specular";
-    }*/
         
     unsigned char *data = stbi_load(p.c_str(), &width, &height, &nrComp, 0);
     if (data) {
@@ -76,14 +67,21 @@ const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
     }
 
     stbi_image_free(data);
-    textures[p.c_str()] = std::make_unique<Texture>(t);
-    return *textures[p.c_str()];
+    textures[p] = std::make_unique<Texture>(t);
+    return *textures[p];
+}
+
+template<typename T>
+const UniformBuffer<T>& ResourceManager::loadUniformBuffer(std::string_view path)
+{
+    m_ubos.emplace(path, std::make_any<UniformBuffer<T>>());
+    return *m_ubos.find(path)->second.get()
 }
 
 const LoadedModel& ResourceManager::LoadModel(std::string_view path)
 {
-    loadModel(path);
-
+    if(models.find(path) == models.end())
+        loadModel(path);
     return *models.find(path)->second.get();
 }
 
@@ -100,4 +98,10 @@ const Shader& ResourceManager::GetShader(std::string_view name)
 const Texture& ResourceManager::GetTexture(std::string_view path)
 {
     return *textures.find(path)->second.get();
+}
+
+template<typename T>
+const UniformBuffer<T>& ResourceManager::getUniformBuffer(uint32_t ID)
+{
+    return *m_ubos[ID].get();
 }

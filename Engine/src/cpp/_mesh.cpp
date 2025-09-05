@@ -1,5 +1,5 @@
 #include "../headers/_mesh.h"
-
+#include <iostream>
 
 Mesh::Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && indices,
     std::vector<Texture> && textures)
@@ -11,11 +11,14 @@ Mesh::Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && indices
     this->_vertices = vertices;
     this->_indices = indices;
     this->_textures = textures;
+
+    setupMesh();
 }
 
 void Mesh::Draw(const Shader &s)
 {
     unsigned int diffNum = 1, specNum = 1, normNum = 1;
+    //std::cout << this->_textures.size();
     for (unsigned int i = 0; i < this->_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         
@@ -36,7 +39,7 @@ void Mesh::Draw(const Shader &s)
     glDrawElements(GL_TRIANGLES, this->_indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
-    glActiveTexture(0);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void Mesh::setupMesh()

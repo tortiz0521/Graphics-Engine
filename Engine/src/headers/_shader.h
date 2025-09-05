@@ -30,7 +30,7 @@ public:
     void SetVector4f(const char *name, float x, float y, float z, float w, bool useShader = true) const;
     void SetVector4f(const char *name, const glm::vec4 &value, bool useShader = true) const;
     void SetMatrix4(const char *name, const glm::mat4 &matrix, bool useShader = true) const;
-
+   
 private:
     // Shader ID
     unsigned int _ID;

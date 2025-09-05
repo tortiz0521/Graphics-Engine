@@ -72,7 +72,6 @@ int main()
         "../../assets/shaders/standard.fs", "standard");
 
     const LoadedModel& backpack = RM.LoadModel("../../assets/backpack");
-    std::cout << backpack._meshes.size();
 
     Renderer r;
     BoxRenderer BOX;

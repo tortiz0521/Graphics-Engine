@@ -9,8 +9,6 @@ void Renderer::Draw(const LoadedModel &m, const Shader &s, const glm::vec3 &posi
 {
     s.Use();
 
-    std::cout << "HERE: " << m._meshes.size() << '\n';
-
     glm::mat4 model = glm::mat4(1.0f);
 
     // Translate
@@ -25,11 +23,10 @@ void Renderer::Draw(const LoadedModel &m, const Shader &s, const glm::vec3 &posi
 
     s.SetMatrix4("model", model, true);
 
-    //glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
     for (Mesh mesh : m._meshes) {
         mesh.Draw(s);
     }
-    //m.Draw(s);
 }
 
 void BoxRenderer::Draw(const Shader &s, const glm::vec3 &position,
@@ -115,7 +112,7 @@ void BoxRenderer::initRenderer()
         -0.5f,  0.5f,  0.5f,    0.0f, 0.0f,   0.0f,  1.0f,  0.0f// bottom-left  
     };
 
-    std::cout << glGetString(GL_VERSION) << std::endl << glGetString(GL_VENDOR) << std::endl;
+
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(this->_VAO);

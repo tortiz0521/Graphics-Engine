@@ -12,7 +12,6 @@ void Texture::Generate(unsigned int w, unsigned int h, unsigned int format,
 {
     this->_path = path.c_str();
     this->_type = type;
-    //this->_ID = 0;
 
     // Create the texture
     glBindTexture(GL_TEXTURE_2D, this->_ID);

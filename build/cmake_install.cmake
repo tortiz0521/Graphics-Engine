@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/timot/Graphics-Engine
+# Install script for directory: C:/Users/Tim/C++Projects/GraphicsEngine
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,13 +34,13 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/Users/timot/Graphics-Engine/build/Engine/cmake_install.cmake")
+  include("C:/Users/Tim/C++Projects/GraphicsEngine/build/Engine/cmake_install.cmake")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "C:/Users/timot/Graphics-Engine/build/install_local_manifest.txt"
+  file(WRITE "C:/Users/Tim/C++Projects/GraphicsEngine/build/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
 if(CMAKE_INSTALL_COMPONENT)
@@ -56,6 +56,6 @@ else()
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "C:/Users/timot/Graphics-Engine/build/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "C:/Users/Tim/C++Projects/GraphicsEngine/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
