@@ -9,7 +9,7 @@ class Scene
 {
 public:
 	Scene() = default;
-	void RenderScene(Renderer& r);
+	void RenderScene(const Renderer& r);
 
 	Scene& AddEntity(Entity && e);
 	Scene& AddLight(Light && l);

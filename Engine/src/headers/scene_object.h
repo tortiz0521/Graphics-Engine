@@ -4,6 +4,8 @@
 #include <string_view>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <vector>
+#include <memory>
 
 /*
 	// ENTITY OBJECT //
@@ -11,6 +13,8 @@
 		- Position
 		- Rotation
 		- Scale
+
+	In an entity tree system, each entity will also have:
 		- Children Entities.
 
 	An entity also needs to give their model matrix when it is time to render.
@@ -19,7 +23,7 @@ class Entity
 {
 public:
 	Entity(glm::vec3 pos, glm::vec3 rotation, glm::vec3 scale,
-		std::string_view mName, std::string_view sName);
+		uint32_t modelID, uint32_t shaderID);
 
 	// Getters for entity state vars:
 	const glm::vec3 GetPosition();
@@ -27,18 +31,24 @@ public:
 	const glm::vec3 GetScale();
 
 	void UpdateEntity();
-	const glm::mat4 CalculateModelMat();
+	const glm::mat4 CalculateModelMat(glm::mat4& model);
+
+	void AddChild(Entity& c);
+	const std::vector<std::unique_ptr<Entity>> GetChildren();
 
 private:
-	std::string_view m_model, m_shader;
+	uint32_t m_model, m_shader;
 
 	// State vars:
 	glm::vec3 m_pos, m_rotation, m_scale;
+
+	// List of child entities for general entity system.
+	std::vector<std::unique_ptr<Entity>> m_children;
 };
 
 
 // LIGHT: Inherits Entity, defines extra vars for the type of light it is.
-enum LightType {
+/*enum LightType {
 	DIRECTION,
 	POINT,
 	SPOT
@@ -47,7 +57,7 @@ enum LightType {
 class Light : Entity
 {
 public:
-	Light(glm::vec3 pos, glm::vec3 rotation, glm::vec3 scale, std::string_view mName, std::string_view sName,
+	Light(glm::vec3 pos, glm::vec3 rotation, glm::vec3 scale, uint32_t modelID, uint32_t shaderID,
 		glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 spec, float constant, float linear, 
 		float quad, float inCut, float outCut, LightType type);
 
@@ -104,6 +114,6 @@ private:
 
 	// Update the current lookat for the camera based on the pitch/yaw.
 	void updateCameraFront();
-};
+};*/
 
 #endif

@@ -65,13 +65,13 @@ int main()
     const Texture& con2_spec = RM.LoadTexture("../../assets/textures/container2_specular.png", NONE);
 
     // Update the resource manager:
-    const Shader& box = RM.LoadShader("../../assets/shaders/box.vs",
-        "../../assets/shaders/box.fs", "box");
+    const Shader& box = RM.GetShader(RM.LoadShader("../../assets/shaders/box.vs",
+        "../../assets/shaders/box.fs", "box"));
 
-    const Shader& standard = RM.LoadShader("../../assets/shaders/standard.vs",
-        "../../assets/shaders/standard.fs", "standard");
+    const Shader& standard = RM.GetShader(RM.LoadShader("../../assets/shaders/standard.vs",
+        "../../assets/shaders/standard.fs", "standard"));
 
-    const LoadedModel& backpack = RM.LoadModel("../../assets/backpack");
+    const LoadedModel& backpack = RM.GetModel(RM.LoadModel("../../assets/backpack"));
 
     Renderer r;
     BoxRenderer BOX;

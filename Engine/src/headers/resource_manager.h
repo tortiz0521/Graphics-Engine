@@ -31,14 +31,14 @@ struct TransparentHasher {
 
 struct IDHasher {
     using is_transparent = void;
-    std::size_t operator()(const std::string_view& sv) const noexcept {
+    uint32_t operator()(const std::string_view& sv) const {
         size_t h = std::hash<std::string_view>{}(sv);
         return static_cast<uint32_t>(h);
     }
 };
 
 struct IDEqual {
-    bool operator()(const uint32_t& a, const uint32_t& b) {
+    bool operator()(const uint32_t a, const uint32_t b) {
         return a == b;
     }
 };
@@ -66,15 +66,16 @@ public:
     ResourceManager() = default;
 
     // Load shaders/textures from their files
-    const Shader& LoadShader(const char* vertex, const char* fragment, std::string_view name, const char* geometry = nullptr);
+    const uint32_t LoadShader(const char* vertex, const char* fragment, std::string_view name, const char* geometry = nullptr);
     const Texture& LoadTexture(std::string directory, TextureType type);
-    const LoadedModel& LoadModel(std::string_view path);
+    const uint32_t LoadModel(std::string_view path);
 
     // Get shaders/textures from their maps
-    const Shader& GetShader(std::string_view name);
+    const Shader& GetShader(uint32_t ID);
     const Texture& GetTexture(std::string_view path);
-    const LoadedModel& GetModel(std::string_view path);
+    const LoadedModel& GetModel(uint32_t ID);
 
+    // Update a UBO!!!
     template<typename T>
     const UniformBuffer<T>& UBOUpdateStruct(T& data);
 
@@ -104,10 +105,11 @@ private:
     std::unordered_map<std::string, std::unique_ptr<Texture>, TransparentHasher, std::equal_to<>> textures;
     std::unordered_map<std::string, std::unique_ptr<LoadedModel>, TransparentHasher, std::equal_to<>> models;
 
-    std::unordered_map<uint32_t, std::unique_ptr<Shader>, IDHasher, IDEqual> m_shaders;
-    std::unordered_map<uint32_t, std::unique_ptr<Texture>, IDHasher, IDEqual> m_textures;
-    std::unordered_map<uint32_t, std::unique_ptr<LoadedModel>, IDHasher, IDEqual> m_models;
-    std::unordered_map<uint32_t, std::unique_ptr<std::any>, IDHasher, IDEqual> m_ubos;
+    // ID Based maps for general resources.
+    std::unordered_map<uint32_t, std::unique_ptr<Shader>> m_shaders;
+    std::unordered_map<uint32_t, std::unique_ptr<Texture>> m_textures;
+    std::unordered_map<uint32_t, std::unique_ptr<LoadedModel>> m_models;
+    std::unordered_map<uint32_t, std::unique_ptr<std::any>> m_ubos;
 };
 
 #endif

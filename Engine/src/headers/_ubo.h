@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
+// This is used to ensure that there is no allignment optimizing being done so it matches GPU memory.
 #pragma pack(push, 0)
 
 struct DirectionLight {
@@ -51,7 +52,7 @@ public:
 
     // Take a FULL STRUCT to update the ENTIRE UBO data!
     UniformBuffer& UpdateStruct(T& data);
-    // Tale some specific piece of data within the struct and update that data.
+    // Take some specific piece of data within the struct and update that data.
     UniformBuffer& UpdateField(size_t offset, size_t size, const void* data);
 
 private:

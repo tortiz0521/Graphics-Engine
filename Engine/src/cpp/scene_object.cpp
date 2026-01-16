@@ -1,8 +1,8 @@
 #include "../headers/scene_object.h"
 
 Entity::Entity(glm::vec3 pos, glm::vec3 rotation, glm::vec3 scale,
-	std::string_view mName, std::string_view sName)
-	: m_pos(pos), m_rotation(rotation), m_scale(scale), m_model(mName), m_shader(sName) {}
+	uint32_t modelID, uint32_t shaderID)
+	: m_pos(pos), m_rotation(rotation), m_scale(scale), m_model(modelID), m_shader(shaderID) {}
 
 const glm::vec3 Entity::GetPosition()
 {
@@ -19,12 +19,10 @@ const glm::vec3 Entity::GetScale()
 	return m_scale;
 }
 
-const glm::mat4 Entity::CalculateModelMat()
+const glm::mat4 Entity::CalculateModelMat(glm::mat4& model)
 {
 	// Calculation order: Scale -> Rotate -> Translate
 	// Reverse the order because matrix calculations happen from right to left.
-
-	glm::mat4 model = glm::mat4(1.0f);
 
 	// Translate
 	model = glm::translate(model, m_pos);
@@ -39,10 +37,20 @@ const glm::mat4 Entity::CalculateModelMat()
 }
 
 
+void Entity::AddChild(Entity& c)
+{
+	m_children.emplace_back(std::make_unique<Entity>(c));
+}
 
-Light::Light(glm::vec3 pos, glm::vec3 rotation, glm::vec3 scale, std::string_view mName, std::string_view sName,
+const std::vector<std::unique_ptr<Entity>> Entity::GetChildren()
+{
+	return m_children;
+}
+
+
+Light::Light(glm::vec3 pos, glm::vec3 rotation, glm::vec3 scale, uint32_t modelID, uint32_t shaderID,
 	glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 spec, float constant, float linear, float quad, 
 	float inCut, float outCut, LightType type)
-	: Entity(pos, rotation, scale, mName, sName), m_ambient(ambient), m_diffuse(diffuse), m_specular(spec),
+	: Entity(pos, rotation, scale, modelID, shaderID), m_ambient(ambient), m_diffuse(diffuse), m_specular(spec),
 	m_const(constant), m_linear(linear), m_quad(quad), m_inCutOff(inCut), m_outCutOff(outCut), m_type(type) {}
 

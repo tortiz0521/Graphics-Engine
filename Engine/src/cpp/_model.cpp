@@ -18,7 +18,9 @@ void ResourceManager::loadModel(std::string_view path)
 
     m._name = temp;
     processNode(scene->mRootNode, scene, m);
-    models.emplace(temp, std::make_unique<LoadedModel>(m));
+    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(temp));
+    m_models[ID] = std::make_unique<LoadedModel>(m);
+    //m_models.emplace(temp, std::make_unique<LoadedModel>(m));
     //this->models[temp] = std::make_unique<LoadedModel>(m);
 }
 
@@ -47,8 +49,7 @@ Mesh ResourceManager::processMesh(
         verts.push_back(Vertex(
             glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z),
             glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z),
-                (mesh->mTextureCoords[0]) ? 
-                glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y) : glm::vec2(0.0f)
+                (mesh->mTextureCoords[0]) ? glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y) : glm::vec2(0.0f)
         ));
     }
 
@@ -93,12 +94,14 @@ std::vector<Texture> ResourceManager::processTextures(
         mat->GetTexture(aiType, i, &s);
 
         std::string path = m._name + "/" + std::string(s.C_Str());
-        auto &tex = this->textures.find(path)->second;
-        if (!tex) {
+        uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(path));
+        auto tex = m_textures.find(ID);
+
+        if (tex == m_textures.end()) {
             textures.push_back(LoadTexture(path, type));
         }
         else {
-            textures.push_back(*tex.get());
+            textures.push_back(*tex->second.get());
         }
     }
 

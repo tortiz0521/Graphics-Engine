@@ -1,6 +1,6 @@
 #include "../headers/resource_manager.h"
 
-const Shader& ResourceManager::LoadShader(const char *vertex, const char *fragment, std::string_view name, const char * geometry)
+const uint32_t ResourceManager::LoadShader(const char *vertex, const char *fragment, std::string_view name, const char * geometry)
 {
     std::string vString, fString, gString;
     std::ifstream vfile, ffile, gfile;
@@ -39,8 +39,12 @@ const Shader& ResourceManager::LoadShader(const char *vertex, const char *fragme
 
     Shader s = Shader();
     s.Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
-    shaders[static_cast<std::string>(name)] = std::make_unique<Shader>(s);
-    return *shaders.find(name)->second.get();
+
+    // Hash ID from file name + place new shader in container.
+    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(name));
+    m_shaders[ID] = std::make_unique<Shader>(s);
+    return ID;
+
 }
 
 const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
@@ -59,7 +63,7 @@ const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
         else if (nrComp == 4)
             format = GL_RGBA;
 
-        t.Generate(width, height, format, data, type, p);
+        t.Generate(width, height, format, data, type, p); // Generate Texture
     }
     else {
         std::cout << "Here is the error: " << stbi_failure_reason() << '\n';
@@ -67,41 +71,50 @@ const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
     }
 
     stbi_image_free(data);
-    textures[p] = std::make_unique<Texture>(t);
-    return *textures[p];
+
+    // Hash ID fron file name + place new Texture in container.
+    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(p));
+    m_textures[ID] = std::make_unique<Texture>(t);
+    return *m_textures[ID];
 }
 
 template<typename T>
 const UniformBuffer<T>& ResourceManager::loadUniformBuffer(std::string_view path)
 {
-    m_ubos.emplace(path, std::make_any<UniformBuffer<T>>());
-    return *m_ubos.find(path)->second.get()
+    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(path));
+    m_ubos[ID] = std::make_any<UniformBuffer<T>>();
+    return *m_ubos[ID];
 }
 
-const LoadedModel& ResourceManager::LoadModel(std::string_view path)
+const uint32_t ResourceManager::LoadModel(std::string_view path)
 {
-    if(models.find(path) == models.end())
-        loadModel(path);
-    return *models.find(path)->second.get();
+    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(path));
+    if(m_models.find(ID) == m_models.end())
+         loadModel(path);
+    return ID;
 }
 
-const LoadedModel& ResourceManager::GetModel(std::string_view path)
+const LoadedModel& ResourceManager::GetModel(uint32_t ID)
 {
-    return *models.find(path)->second.get();
+    return *m_models[ID];
+    //return LoadedModel();
 }
 
-const Shader& ResourceManager::GetShader(std::string_view name)
+const Shader& ResourceManager::GetShader(uint32_t ID)
 {
-    return *shaders.find(name)->second.get();
+    return *m_shaders[ID];
+    //return Shader();
 }
 
 const Texture& ResourceManager::GetTexture(std::string_view path)
 {
-    return *textures.find(path)->second.get();
+    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(path));
+    return *m_textures[ID];
 }
 
 template<typename T>
 const UniformBuffer<T>& ResourceManager::getUniformBuffer(uint32_t ID)
 {
-    return *m_ubos[ID].get();
+    //return *m_ubos[ID].get();
+    return NULL;
 }

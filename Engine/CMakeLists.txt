@@ -31,7 +31,7 @@ target_sources(Engine PRIVATE
     src/cpp/camera.cpp
     src/cpp/renderer.cpp
     src/cpp/resource_manager.cpp
- "src/headers/scene_object.h" "src/cpp/scene_object.cpp" "src/headers/scene.h" "src/cpp/scene.cpp" "src/headers/_ubo.h" )
+ )
 
 
 target_link_libraries(Engine PRIVATE
