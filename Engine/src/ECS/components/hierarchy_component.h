@@ -10,7 +10,7 @@
 struct HierarchyComponent
 {
 	Entity parent = INVALID_ENTITY;
-	glm::mat4 parentInverseBind;
+	glm::mat4 parentInverseBind{}; // For skeletons on deparenting/reparenting!
 };
 
 // This exists here because there should only be ONE manager!

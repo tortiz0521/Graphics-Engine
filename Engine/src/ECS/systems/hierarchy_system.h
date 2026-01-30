@@ -4,16 +4,15 @@
 #include "../components/hierarchy_component.h"
 #include "../components/transform_component.h"
 
+#include <glm/glm.hpp>
+
+// This system updates between frames! The goal is just to organize data properly. Preparing the data for render will be the job of the rendering system.
+
 namespace HierarchySystem {
 	// Anonymous namespace: Limit public access within a file. Only functions within the translation unit have access to these.
 	namespace {
 		void ApplyTransform(TransformComponent* parent, TransformComponent* child) {
 			child->worldTransform = parent->localTransform * child->localTransform;
-		};
-
-		glm::mat4 GiveParent(HierarchyComponent& child, Entity parent) {
-
-			//child->parentInverseBind =
 		};
 	}
 

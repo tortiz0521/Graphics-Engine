@@ -1,6 +1,4 @@
 #include "../headers/_shader.h"
-
-#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
 const Shader& Shader::Use() const

@@ -1,11 +1,7 @@
 #ifndef TRANSFORM_COMPONENT_H
 #define TRANSFORM_COMPONENT_H
-#pragma once
 
 #include "../_component_manager.h"
-
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
 
 struct TransformComponent 
 {
@@ -15,7 +11,7 @@ struct TransformComponent
 	glm::vec3 scale;
 	float rotation;
 
-	void SetTransforms(glm::vec3 s = glm::vec3(1.0f), 
+	void SetTransform(glm::vec3 s = glm::vec3(1.0f), 
 		glm::vec3 t = glm::vec3(1.0f), float r = 0.0f)
 	{
 		scale = s;
@@ -28,10 +24,10 @@ struct TransformComponent
 		m = glm::scale(m, scale);
 		localTransform = m;
 	};
+
+	void SetTransition(glm::vec3 s) { scale = s; };
 };
 
 ComponentManager<TransformComponent> transforms;
-
-
 
 #endif

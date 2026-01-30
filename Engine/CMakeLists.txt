@@ -31,7 +31,8 @@ target_sources(Engine PRIVATE
     src/cpp/camera.cpp
     src/cpp/renderer.cpp
     src/cpp/resource_manager.cpp
- )
+    src/ECS/systems/hierarchy_system.cpp
+ "src/ECS/systems/batching_system.h" "src/ECS/systems/batching_system.cpp")
 
 
 target_link_libraries(Engine PRIVATE

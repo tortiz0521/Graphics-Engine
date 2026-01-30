@@ -16,16 +16,17 @@ void HierarchySystem::Attach(Entity entity, Entity parent)
 			for (size_t j = 0; j < i; j++) {
 				if (hierarchy[j].parent == hierarchy.GetEntity(i)) {
 					hierarchy.MoveItem(i, j);
+					transforms.MoveItem(i, j);
 					++i;
 				}
 			}
 		}
 	}
 
-	// Make sure that the necessary hierarchy components are created.
+	// Make sure that the necessary hierarchy components exist.
 	TransformComponent* parentTransform = transforms.GetComponent(parent);
 	if (parentTransform == nullptr) {
-		transforms.Create(parent).SetTransforms();
+		transforms.Create(parent).SetTransform();
 	}
 	hc.parentInverseBind = glm::inverse(parentTransform->worldTransform);
 }
@@ -33,7 +34,7 @@ void HierarchySystem::Attach(Entity entity, Entity parent)
 // Detach an entity from the hierarchy system.
 void HierarchySystem::Detach(Entity e)
 {
-	const HierarchyComponent* hc = hierarchy.GetComponent(e);
+	HierarchyComponent* hc = hierarchy.GetComponent(e);
 
 	if (hc != nullptr) {
 		TransformComponent* tc = transforms.GetComponent(e);
@@ -41,8 +42,9 @@ void HierarchySystem::Detach(Entity e)
 			tc->localTransform = tc->worldTransform;
 		}
 
-		hierarchy.RemoveKeepSorted(e);
-
+		hc->parent = INVALID_ENTITY;
+		size_t index = hierarchy.GetIndex(e);
+		hierarchy.MoveItem(index, hierarchy.GetCount());
 	} 
 }
 
@@ -59,5 +61,21 @@ void HierarchySystem::Reparent(Entity e, Entity newParent)
 		}
 
 		hc->parent = newParent;
+	}
+}
+
+void HierarchySystem::UpdateHierarchySystem()
+{
+	transforms[0].worldTransform = transforms[0].localTransform;
+	glm::mat4 prev = transforms[0].worldTransform;
+	for (uint32_t i = 1; i < transforms.GetCount(); i++) {
+		prev = transforms[i].worldTransform;
+
+		if (hierarchy[i].parent == INVALID_ENTITY) {
+			transforms[i].worldTransform = transforms[i].localTransform;
+			continue;
+		}
+		
+		transforms[i].worldTransform = prev * transforms[i].localTransform;
 	}
 }

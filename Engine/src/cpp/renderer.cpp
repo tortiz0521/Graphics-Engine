@@ -1,8 +1,29 @@
 #include "../headers/renderer.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/transform.hpp>
-//#include <GLFW/glfw3.h>
+void Renderer::InitRenderer()
+{
+    // Initiazlize dynamic buffer
+    glGenBuffers(1, &m_DynamicVBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_DynamicVBO);
+    glBufferData(GL_ARRAY_BUFFER, 100.0f * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
+}
+
+
+void Renderer::DrawInstanced(uint32_t modelID, uint32_t shaderID, const std::vector<glm::mat4>& data)
+{
+    const LoadedModel& m = m_manager.GetModel(modelID);
+    const Shader& s = m_manager.GetShader(shaderID);
+
+    if (true)
+        UpdateVBO(data);
+
+    s.Use();
+
+    for (Mesh mesh : m._meshes) {
+        mesh.Draw(s, data.size());
+    }
+}
 
 void Renderer::Draw(const LoadedModel &m, const Shader &s, const glm::vec3 &position,
         const glm::vec3 &size,const glm::vec3 color)
@@ -27,6 +48,18 @@ void Renderer::Draw(const LoadedModel &m, const Shader &s, const glm::vec3 &posi
     for (Mesh mesh : m._meshes) {
         mesh.Draw(s);
     }
+}
+
+
+void Renderer::UpdateVBO(const std::vector<glm::mat4>& data)
+{
+    // A Non-persistent Map Orphaning implementation
+    size_t dataSize = sizeof(data);
+    glBindBuffer(GL_ARRAY_BUFFER, m_DynamicVBO);
+    auto* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, dataSize,
+        GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+    memcpy(ptr, &data, dataSize);
+    glUnmapBuffer(GL_ARRAY_BUFFER);
 }
 
 void BoxRenderer::Draw(const Shader &s, const glm::vec3 &position,

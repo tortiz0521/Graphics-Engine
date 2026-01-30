@@ -25,7 +25,7 @@ public:
     Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && inidces,
         std::vector<Texture> && textures);
 
-    void Draw(const Shader &s); // Add the specific renderer that we are going to use to the param list!
+    void Draw(const Shader &s, const size_t amount = -1); // Add the specific renderer that we are going to use to the param list!
 
 private:
     unsigned int _VAO, _VBO, _EBO;

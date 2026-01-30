@@ -5,6 +5,8 @@
 #include <vector>
 #include <unordered_map>
 #include <cassert>
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
 /*
 	Entity handling for an entity component system.
@@ -65,6 +67,12 @@ public:
 
 		return nullptr; // Give user an indication that the component doesn't exist.
 	};
+
+	size_t GetIndex(Entity e)
+	{
+		auto entry = m_lookup.find(e);
+		return (entry != m_lookup.end()) ? entry->second : (size_t)-1; // Unique way to get the max of size_t: cast -1 to it! size_t is unsigned int, meaning -1 would cast to the max value.
+	}
 
 	void Remove(Entity e)
 	{
