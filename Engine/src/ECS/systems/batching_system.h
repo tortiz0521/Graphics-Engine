@@ -3,8 +3,10 @@
 
 #include "../components/render_component.h"
 #include "../components/transform_component.h"
+#include "../components/light_component.h"
 
 #include <memory>
+#include <functional>
 
 namespace BatchingSystem {
 	namespace {
@@ -18,8 +20,8 @@ namespace BatchingSystem {
 					m_batchedIndex.emplace_back(i);
 					continue;
 				}
-				else if (renders[i].shader >= renders[m_batchedIndex.back()].shader
-					&& renders[i].model >= renders[m_batchedIndex.back()].model) {
+				else if (renders[i].get()->shader >= renders[m_batchedIndex.back()].get()->shader
+					&& renders[i].get()->model >= renders[m_batchedIndex.back()].get()->model) {
 					m_batchedIndex.emplace_back(i);
 					continue;
 				}
@@ -27,8 +29,8 @@ namespace BatchingSystem {
 				size_t cur = i;
 				for (unsigned int j = 0; j < m_batchedIndex.size(); j++) {
 					size_t temp = m_batchedIndex[j];
-					if (renders[cur].shader < renders[temp].shader
-						&& renders[cur].model < renders[temp].model) {
+					if (renders[cur].get()->shader < renders[temp].get()->shader
+						&& renders[cur].get()->model < renders[temp].get()->model) {
 						m_batchedIndex[j] = cur;
 						cur = temp;
 					}
@@ -42,7 +44,7 @@ namespace BatchingSystem {
 		};
 	};
 
-	void Dispatch(void (*RendererDraw)(modelID, shaderID, std::vector<glm::mat4>));
+	void Dispatch(std::function<void(uint32_t, uint32_t, const std::vector <glm::mat4>&)> RendererDraw);
 	void Batch();
 };
 

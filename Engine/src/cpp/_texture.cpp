@@ -44,6 +44,9 @@ const std::string Texture::GetType() const
         return "texture_normal";
     else if (this->_type == SPECULAR)
         return "texture_specular";
+    else {
+        return "ERROR_TYPE";
+    }
 }
 
 bool Texture::ComparePath(const char *o)

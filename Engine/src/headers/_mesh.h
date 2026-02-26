@@ -23,7 +23,7 @@ class Mesh
 {
 public:
     Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && inidces,
-        std::vector<Texture> && textures);
+        std::vector<Texture> && textures, unsigned int persistentVBO, float shine);
 
     void Draw(const Shader &s, const size_t amount = -1); // Add the specific renderer that we are going to use to the param list!
 
@@ -32,8 +32,9 @@ private:
     std::vector<Vertex> _vertices;
     std::vector<unsigned int> _indices;
     std::vector<Texture> _textures;
+    float _shininess;
 
-    void setupMesh();
+    void setupMesh(unsigned int persistentVBO);
 };
 
 #endif // _MESH_H

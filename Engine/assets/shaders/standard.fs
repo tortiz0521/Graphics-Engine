@@ -1,4 +1,5 @@
-#version 330 core
+// Using version 330 does not allow for implicit binding declarations!
+#version 420 core
 
 out vec4 FragColor;
 
@@ -33,16 +34,14 @@ struct DirectionLight // Think of as a sun!
 struct PointLight // Think of as a lamp of sorts.
 {
 	// Position of the light.
-	vec3 pos;
+	vec4 pos;
 
 	// Attenuation values!
-	float constant;
-	float linear;
-	float quadratic;
+	vec4 attenuationVals;
 
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
 };
 
 struct SpotLight // Think of as a flashlight.
@@ -72,9 +71,24 @@ uniform Material mat;
 #define MAX_SPOT_LIGHTS 10
 
 // Arrays of lights!
-uniform DirectionLight dirs[MAX_DIR_LIGHTS];
-uniform PointLight points[MAX_POINT_LIGHTS];
-uniform SpotLight spots[MAX_SPOT_LIGHTS];
+layout(std140, binding = 0) uniform DirectionLights 
+{
+	DirectionLight dLights[MAX_DIR_LIGHTS];
+};
+
+layout(std140, binding = 1) uniform PointLights 
+{
+	PointLight pLights[MAX_POINT_LIGHTS];
+};
+
+layout(std140, binding = 2) uniform SpotLights
+{
+	SpotLight sLights[MAX_SPOT_LIGHTS];
+};
+
+//uniform DirectionLight dirs[MAX_DIR_LIGHTS];
+//uniform PointLight points[MAX_POINT_LIGHTS];
+//uniform SpotLight spots[MAX_SPOT_LIGHTS];
 
 uniform int numDir;
 uniform int numPoint;
@@ -91,19 +105,30 @@ void main()
 
 	vec3 result = vec3(0.0);
 
-	for (int i = 0; i < numDir; i++) {
-		result += CalcDirLight(dirs[i], n, viewDir);
+	for (int i = 0; i < 0; i++) {
+		result += CalcDirLight(dLights[i], n, viewDir);
 	}
 
-	for (int i = 0; i < numPoint; i++) {
-		result += CalcPointLight(points[i], n, viewDir);
+	for (int i = 0; i < 3; i++) {
+		result += CalcPointLight(pLights[i], n, viewDir);
 	}
 
-	for (int i = 0; i < numSpot; i++) {
-		result += CalcSpotLight(spots[i], n, viewDir);
+	for (int i = 0; i < 0; i++) {
+		result += CalcSpotLight(sLights[i], n, viewDir);
 	}
 
-	//FragColor = texture(mat.texture_diffuse1, texCoord);
+	if (result.x >= 1.0) {
+		result.x = 1.0;
+	}
+
+	if (result.y >= 1.0) {
+		result.y = 1.0;
+	}
+
+	if (result.z >= 1.0) {
+		result.z = 1.0;
+	}
+
 	FragColor = vec4(result, 1.0);
 }
 
@@ -126,20 +151,21 @@ vec3 CalcDirLight(DirectionLight light, vec3 n, vec3 viewDir)
 
 vec3 CalcPointLight(PointLight light, vec3 n, vec3 viewDir)
 {
-	vec3 lightDir = normalize(light.pos - modelPos);
-	float lightDistance = length(light.pos - modelPos);
+	n = normalize(n);
+	vec3 lightDir = normalize(light.pos.xyz - modelPos);
+	float lightDistance = length(light.pos.xyz - modelPos);
 	float attenuation = 1.0 / (
-		light.constant + (light.linear * lightDistance) + (light.quadratic * lightDistance * lightDistance)
+		light.attenuationVals.x + (light.attenuationVals.y * lightDistance) + (light.attenuationVals.z * lightDistance * lightDistance)
 	);
 	
-	vec3 a = light.ambient * vec3(texture(mat.texture_diffuse1, texCoord));
+	vec3 a = light.ambient.xyz * vec3(texture(mat.texture_diffuse1, texCoord));
 
 	float diff = max(0.0, dot(n, lightDir));
-	vec3 d = light.diffuse * diff * vec3(texture(mat.texture_diffuse1, texCoord));
+	vec3 d = light.diffuse.xyz * diff * vec3(texture(mat.texture_diffuse1, texCoord));
 
-	vec3 reflectDir = reflect(-lightDir, norm);
+	vec3 reflectDir = normalize(reflect(-lightDir, n));
 	float spec = pow(max(0.0, dot(viewDir, reflectDir)), mat.shininess);
-	vec3 s = light.specular * spec * vec3(texture(mat.texture_specular1, texCoord));
+	vec3 s = light.specular.xyz * spec * vec3(texture(mat.texture_specular1, texCoord));
 
 	return attenuation * (a + d + s);
 }
@@ -161,7 +187,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 n, vec3 viewDir)
 		float diff = max(0.0, dot(n, lightDir));
 		vec3 d = light.diffuse * diff * vec3(texture(mat.texture_diffuse1, texCoord));
 
-		vec3 reflectDir = reflect(n, lightDir);
+		vec3 reflectDir = reflect(n, -lightDir);
 		float spec = pow(max(0.0, dot(viewDir, lightDir)), mat.shininess);
 		vec3 s = light.specular * spec * vec3(texture(mat.texture_specular1, texCoord));
 

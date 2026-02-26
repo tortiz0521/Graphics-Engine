@@ -12,7 +12,7 @@ struct RenderComponent
 	shaderID shader{};
 };
 
-ComponentManager<RenderComponent> renders{};
+extern ComponentManager<RenderComponent> renders;
 
 
 #endif // !MODEL_COMPONENT_H

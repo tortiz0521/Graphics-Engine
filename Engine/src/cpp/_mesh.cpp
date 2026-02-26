@@ -2,7 +2,7 @@
 #include <iostream>
 
 Mesh::Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && indices,
-    std::vector<Texture> && textures)
+    std::vector<Texture> && textures, unsigned int persistentVBO, float shine)
 {
     glGenVertexArrays(1, &_VAO);
     glGenBuffers(1, &_VBO);
@@ -11,14 +11,14 @@ Mesh::Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && indices
     this->_vertices = vertices;
     this->_indices = indices;
     this->_textures = textures;
+    this->_shininess = shine;
 
-    setupMesh();
+    setupMesh(persistentVBO);
 }
 
 void Mesh::Draw(const Shader &s, const size_t amount)
 {
     unsigned int diffNum = 1, specNum = 1, normNum = 1;
-    //std::cout << this->_textures.size();
     for (unsigned int i = 0; i < this->_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         
@@ -35,15 +35,20 @@ void Mesh::Draw(const Shader &s, const size_t amount)
         _textures[i].Bind();
     }
 
+    s.SetFloat("mat.shininess", _shininess, true);
+
     glBindVertexArray(this->_VAO);
-    glDrawElements(GL_TRIANGLES, this->_indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElementsInstanced(GL_TRIANGLES, this->_indices.size(), GL_UNSIGNED_INT, 0, amount);
     glBindVertexArray(0);
 
     glActiveTexture(GL_TEXTURE0);
 }
 
-void Mesh::setupMesh()
+void Mesh::setupMesh(unsigned int persistentVBO)
 {
+    // The VAO!
+    glBindVertexArray(this->_VAO);
+
     // For the VBO!
     glBindBuffer(GL_ARRAY_BUFFER, this->_VBO);
     glBufferData(GL_ARRAY_BUFFER, this->_vertices.size() * sizeof(Vertex), &_vertices[0], GL_STATIC_DRAW);
@@ -51,8 +56,6 @@ void Mesh::setupMesh()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(unsigned int), &_indices[0], GL_STATIC_DRAW);
     
-    // The VAO!
-    glBindVertexArray(this->_VAO);
     // Vertex layout info:
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
@@ -64,22 +67,22 @@ void Mesh::setupMesh()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 
     // Initialize array object
+    glBindBuffer(GL_ARRAY_BUFFER, persistentVBO);
     size_t vec4Size = sizeof(glm::vec4);
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
+    glVertexAttribDivisor(3, 1);
 
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(vec4Size));
+    glVertexAttribDivisor(4, 1);
 
     glEnableVertexAttribArray(5);
     glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+    glVertexAttribDivisor(5, 1);
 
     glEnableVertexAttribArray(6);
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
-
-    glVertexAttribDivisor(3, 1);
-    glVertexAttribDivisor(4, 1);
-    glVertexAttribDivisor(5, 1);
     glVertexAttribDivisor(6, 1);
 
     glBindVertexArray(0);

@@ -48,18 +48,6 @@ struct LoadedModel {
     std::string _name;
 };
 
-enum LightType {
-    DIRECTION,
-    POINT,
-    SPOT
-};
-
-struct Light {
-    LightType type;
-    glm::vec3 Pos;
-    glm::vec3 Dir;
-};
-
 class ResourceManager
 {
 public:
@@ -68,19 +56,12 @@ public:
     // Load shaders/textures from their files
     const uint32_t LoadShader(const char* vertex, const char* fragment, std::string_view name, const char* geometry = nullptr);
     const Texture& LoadTexture(std::string directory, TextureType type);
-    const uint32_t LoadModel(std::string_view path);
+    const uint32_t LoadModel(std::string_view path, unsigned int persistentVBO);
 
     // Get shaders/textures from their maps
     const Shader& GetShader(uint32_t ID);
     const Texture& GetTexture(std::string_view path);
     const LoadedModel& GetModel(uint32_t ID);
-
-    // Update a UBO!!!
-    template<typename T>
-    const UniformBuffer<T>& UBOUpdateStruct(T& data);
-
-    template<typename T>
-    const UniformBuffer<T>& UBOUpdateField(size_t offset, size_t size, const void* data);
 
 private:
     // Logic for creating a Uniform Buffer Object...
@@ -93,9 +74,9 @@ private:
         This creates a parent-child relationship with meshes. What we see here is a recursive process
         for extracting all of the data out of a model!
     */
-    void loadModel(std::string_view path);
-    void processNode(aiNode *node, const aiScene *scene, LoadedModel& m);
-    Mesh processMesh(aiMesh *mesh, const aiScene *scene, LoadedModel& m);
+    void loadModel(std::string_view path, unsigned int persistentVBO);
+    void processNode(aiNode *node, const aiScene *scene, LoadedModel& m, unsigned int persistentVBO);
+    Mesh processMesh(aiMesh *mesh, const aiScene *scene, LoadedModel& m, unsigned int persistentVBO);
     std::vector<Texture> processTextures(
         aiMaterial *mat, aiTextureType aiType, TextureType type, LoadedModel& m
     );

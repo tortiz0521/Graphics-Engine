@@ -5,39 +5,29 @@
 // updated world transform of the parent. This will give us the child's world space coordinates.
 
 // Attach a new entity to the hierarchy system.
-void HierarchySystem::Attach(Entity entity, Entity parent)
+std::shared_ptr<HierarchyComponent>& HierarchySystem::Attach(Entity entity, Entity parent)
 {
-	HierarchyComponent& hc = hierarchy.Create(entity);
-	hc.parent = parent;
+	std::shared_ptr<HierarchyComponent>& hc = hierarchy.Create(entity);
+	hc.get()->parent = parent;
 
-	// Now, search if the 'child' is a 'parent' of any other entities and swap them!
-	if (hierarchy.GetCount() > 1) {
-		for (size_t i = hierarchy.GetCount(); i > 0; i--) {
-			for (size_t j = 0; j < i; j++) {
-				if (hierarchy[j].parent == hierarchy.GetEntity(i)) {
-					hierarchy.MoveItem(i, j);
-					transforms.MoveItem(i, j);
-					++i;
-				}
-			}
-		}
-	}
+	containerUpdate(*hc.get());
+	return hc;
+}
 
-	// Make sure that the necessary hierarchy components exist.
-	TransformComponent* parentTransform = transforms.GetComponent(parent);
-	if (parentTransform == nullptr) {
-		transforms.Create(parent).SetTransform();
-	}
-	hc.parentInverseBind = glm::inverse(parentTransform->worldTransform);
+std::shared_ptr<HierarchyComponent>& HierarchySystem::Attach(Entity e, HierarchyComponent&& comp)
+{
+	std::shared_ptr<HierarchyComponent>& hc = hierarchy.Create(e, std::move(comp));
+	containerUpdate(*hc.get());
+	return hc;
 }
 
 // Detach an entity from the hierarchy system.
 void HierarchySystem::Detach(Entity e)
 {
-	HierarchyComponent* hc = hierarchy.GetComponent(e);
+	std::shared_ptr<HierarchyComponent> hc = hierarchy.GetComponent(e);
 
 	if (hc != nullptr) {
-		TransformComponent* tc = transforms.GetComponent(e);
+		std::shared_ptr<TransformComponent> tc = transforms.GetComponent(e);
 		if (tc != nullptr) {
 			tc->localTransform = tc->worldTransform;
 		}
@@ -50,11 +40,11 @@ void HierarchySystem::Detach(Entity e)
 
 void HierarchySystem::Reparent(Entity e, Entity newParent)
 {
-	HierarchyComponent* hc = hierarchy.GetComponent(e);
+	std::shared_ptr<HierarchyComponent> hc = hierarchy.GetComponent(e);
 
 	if (hc != nullptr && hierarchy.GetComponent(newParent) != nullptr) {
-		TransformComponent* tc = transforms.GetComponent(e);
-		TransformComponent* ptc = transforms.GetComponent(newParent);
+		std::shared_ptr<TransformComponent> tc = transforms.GetComponent(e);
+		std::shared_ptr<TransformComponent> ptc = transforms.GetComponent(newParent);
 
 		if (tc != nullptr && ptc != nullptr) {
 			tc->localTransform = glm::inverse(ptc->worldTransform) * tc->worldTransform;
@@ -66,16 +56,66 @@ void HierarchySystem::Reparent(Entity e, Entity newParent)
 
 void HierarchySystem::UpdateHierarchySystem()
 {
-	transforms[0].worldTransform = transforms[0].localTransform;
-	glm::mat4 prev = transforms[0].worldTransform;
-	for (uint32_t i = 1; i < transforms.GetCount(); i++) {
-		prev = transforms[i].worldTransform;
+	std::shared_ptr<LightComponent> lc = lights.GetComponent(transforms.GetEntity(0));
+	if (true) {//transforms[0].dirty) {
+		transforms[0].get()->SetTransform();
+		transforms[0].get()->worldTransform = transforms[0].get()->localTransform;
 
-		if (hierarchy[i].parent == INVALID_ENTITY) {
-			transforms[i].worldTransform = transforms[i].localTransform;
+		if (lc) {
+			switch (lc->data.value.index()) {
+				case 0: break;
+				case 1:
+					std::get<PointLight>(lc->data.value).pos = glm::vec4(
+						transforms[0].get()->worldTransform[0][3],
+						transforms[0].get()->worldTransform[1][3],
+						transforms[0].get()->worldTransform[2][3],
+						1.0f
+					);
+					break;
+				case 2:
+					std::get<SpotLight>(lc->data.value).pos = glm::vec4(
+						transforms[0].get()->worldTransform[0][3],
+						transforms[0].get()->worldTransform[1][3],
+						transforms[0].get()->worldTransform[2][3],
+						1.0f
+					);
+			}
+		}
+	}
+
+	glm::mat4 prev = transforms[0].get()->worldTransform;
+	for (uint32_t i = 1; i < transforms.GetCount(); i++) {
+		prev = transforms[i].get()->worldTransform;
+		//if(transforms[i].dirty)
+			transforms[i].get()->SetTransform();
+
+		if (hierarchy[i].get()->parent == INVALID_ENTITY) {
+			transforms[i].get()->worldTransform = transforms[i].get()->localTransform;
 			continue;
 		}
 		
-		transforms[i].worldTransform = prev * transforms[i].localTransform;
+		transforms[i].get()->worldTransform = prev * transforms[i].get()->localTransform;
+
+		lc = lights.GetComponent(transforms.GetEntity(i));
+		if (lc) {
+			switch (lc->data.value.index()) {
+				case 0: break;
+				case 1:
+					std::get<PointLight>(lc->data.value).pos = glm::vec4(
+						transforms[0].get()->worldTransform[0][3],
+						transforms[0].get()->worldTransform[1][3],
+						transforms[0].get()->worldTransform[2][3],
+						1.0f
+					);
+					break;
+				case 2:
+					std::get<SpotLight>(lc->data.value).pos = glm::vec4(
+						transforms[0].get()->worldTransform[0][3],
+						transforms[0].get()->worldTransform[1][3],
+						transforms[0].get()->worldTransform[2][3],
+						1.0f
+					);
+			}
+		}
 	}
 }

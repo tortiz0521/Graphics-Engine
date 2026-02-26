@@ -86,11 +86,11 @@ const UniformBuffer<T>& ResourceManager::loadUniformBuffer(std::string_view path
     return *m_ubos[ID];
 }
 
-const uint32_t ResourceManager::LoadModel(std::string_view path)
+const uint32_t ResourceManager::LoadModel(std::string_view path, unsigned int persistentVBO)
 {
     uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(path));
     if(m_models.find(ID) == m_models.end())
-         loadModel(path);
+         loadModel(path, persistentVBO);
     return ID;
 }
 

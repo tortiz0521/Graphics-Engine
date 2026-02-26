@@ -1,4 +1,5 @@
 #include "batching_system.h"
+#include <iostream>
 
 void BatchingSystem::Batch() // This function will sort our data properly. If the amount of entities changes, we use the rebatch method.
 {
@@ -9,15 +10,15 @@ void BatchingSystem::Batch() // This function will sort our data properly. If th
 
 	for (unsigned int i = 0; i < m_batchedIndex.size(); i++) {
 		size_t cur = m_batchedIndex[i];
-		if (renders[cur].shader <= renders[m_batchedIndex[i + 1]].shader
-			&& renders[cur].model <= renders[m_batchedIndex[i + 1]].model) {
+		if (renders[cur].get()->shader <= renders[m_batchedIndex[i + 1]].get()->shader
+			&& renders[cur].get()->model <= renders[m_batchedIndex[i + 1]].get()->model) {
 			continue;
 		}
 
 		for (unsigned int j = 1; j < m_batchedIndex.size(); j++) {
 			size_t temp = m_batchedIndex[j];
-			if (renders[cur].shader < renders[temp].shader
-				&& renders[cur].model < renders[temp].model) {
+			if (renders[cur].get()->shader < renders[temp].get()->shader
+				&& renders[cur].get()->model < renders[temp].get()->model) {
 				m_batchedIndex[j] = cur;
 				cur = temp;
 			}
@@ -29,18 +30,24 @@ void BatchingSystem::Batch() // This function will sort our data properly. If th
 	}
 }
 
-void BatchingSystem::Dispatch(void (*RendererDraw)(modelID, shaderID, std::vector<glm::mat4>))
+void BatchingSystem::Dispatch(std::function<void(uint32_t, uint32_t, const std::vector <glm::mat4>&)> RendererDraw)
 {
 	std::vector<glm::mat4> data{};
 
 	for (unsigned int i = 0; i < m_batchedIndex.size(); i++) {
-		data.emplace_back(transforms[m_batchedIndex[i]].worldTransform);
+		data.emplace_back(transforms[m_batchedIndex[i]].get()->worldTransform);
 
-		if (renders[m_batchedIndex[i + 1]].shader != renders[m_batchedIndex[i]].shader
-			|| renders[m_batchedIndex[i + 1]].model != renders[m_batchedIndex[i]].model
+		if (i + 1 == m_batchedIndex.size()) {
+			//std::cout << "HERE\n";
+			RendererDraw(renders[m_batchedIndex[i]].get()->model, renders[m_batchedIndex[i]].get()->shader, data);
+			return;
+		}
+
+		if (renders[m_batchedIndex[i + 1]].get()->shader != renders[m_batchedIndex[i]].get()->shader
+			|| renders[m_batchedIndex[i + 1]].get()->model != renders[m_batchedIndex[i]].get()->model
 			|| i + 1 == m_batchedIndex.size()) {
 			// Call the draw function. The renderer will handle placing the data into our VBO PRIOR to calling DrawInstanced.
-			RendererDraw(renders[m_batchedIndex[i]].model, renders[m_batchedIndex[i]].shader, data);
+			RendererDraw(renders[m_batchedIndex[i]].get()->model, renders[m_batchedIndex[i]].get()->shader, data);
 			data.clear();
 		}
 	}

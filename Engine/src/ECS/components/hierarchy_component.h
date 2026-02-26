@@ -3,8 +3,6 @@
 #pragma once
 
 #include "../_component_manager.h"
-// Include any hierarchy dependant components!
-
 
 // This component doesn't need to know about the children it has! 
 struct HierarchyComponent
@@ -14,6 +12,6 @@ struct HierarchyComponent
 };
 
 // This exists here because there should only be ONE manager!
-ComponentManager<HierarchyComponent> hierarchy{};
+extern ComponentManager<HierarchyComponent> hierarchy;
 
 #endif

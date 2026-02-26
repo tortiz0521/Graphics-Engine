@@ -1,7 +1,7 @@
 #include "../headers/resource_manager.h"
 
 // Process an entire model!
-void ResourceManager::loadModel(std::string_view path)
+void ResourceManager::loadModel(std::string_view path, unsigned int persistentVBO)
 {
     LoadedModel m = LoadedModel();
 
@@ -17,28 +17,26 @@ void ResourceManager::loadModel(std::string_view path)
     }
 
     m._name = temp;
-    processNode(scene->mRootNode, scene, m);
+    processNode(scene->mRootNode, scene, m, persistentVBO);
     uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(temp));
     m_models[ID] = std::make_unique<LoadedModel>(m);
-    //m_models.emplace(temp, std::make_unique<LoadedModel>(m));
-    //this->models[temp] = std::make_unique<LoadedModel>(m);
 }
 
 void ResourceManager::processNode(
-    aiNode *node, const aiScene *scene, LoadedModel &m) 
+    aiNode *node, const aiScene *scene, LoadedModel &m, unsigned int persistentVBO) 
 {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        m._meshes.push_back(processMesh(mesh, scene, m));
+        m._meshes.push_back(processMesh(mesh, scene, m, persistentVBO));
     }
 
     for (unsigned int i = 0; i< node->mNumChildren; i++) {
-        processNode(node->mChildren[i], scene, m);
+        processNode(node->mChildren[i], scene, m, persistentVBO);
     }
 }
 
 Mesh ResourceManager::processMesh(
-    aiMesh *mesh, const aiScene *scene, LoadedModel &m) 
+    aiMesh *mesh, const aiScene *scene, LoadedModel &m, unsigned int persistentVBO) 
 {
     std::vector<Texture> texs{};
     std::vector<unsigned int> indices{};
@@ -60,6 +58,7 @@ Mesh ResourceManager::processMesh(
         }
     }
 
+    float shininess = 0.0f;
     // Setup up the models material!
     if (mesh->mMaterialIndex >= 0) {
         aiMaterial *mat = scene->mMaterials[mesh->mMaterialIndex];
@@ -80,9 +79,13 @@ Mesh ResourceManager::processMesh(
         maps = processTextures(mat, aiTextureType_SPECULAR, SPECULAR, m);
         texs.insert(texs.end(), maps.begin(), maps.end());
         maps.clear();
+
+        if (AI_SUCCESS != mat->Get(AI_MATKEY_SHININESS, shininess)) {
+            shininess = 32.0f;
+        }
     }
 
-    return Mesh(std::move(verts), std::move(indices), std::move(texs));
+    return Mesh(std::move(verts), std::move(indices), std::move(texs), persistentVBO, shininess);
 }
 
 std::vector<Texture> ResourceManager::processTextures(

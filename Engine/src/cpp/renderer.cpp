@@ -1,27 +1,87 @@
 #include "../headers/renderer.h"
+#include <iostream>
 
-void Renderer::InitRenderer()
+void Renderer::InitRenderer(unsigned int WIDTH, unsigned int HEIGHT)
 {
+    CreateContext(WIDTH, HEIGHT);
     // Initiazlize dynamic buffer
-    glGenBuffers(1, &m_DynamicVBO);
-
+    glGenBuffers(1, &this->m_DynamicVBO);
     glBindBuffer(GL_ARRAY_BUFFER, m_DynamicVBO);
-    glBufferData(GL_ARRAY_BUFFER, 100.0f * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 100.0f * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+
+    // Initialize UBOs
+    m_dirUBO = std::make_unique<UniformBuffer<DirectionLight>>(UniformBuffer<DirectionLight>(5, 0));
+    m_pointUBO = std::make_unique<UniformBuffer<PointLight>>(UniformBuffer<PointLight>(10, 1));
+    m_spotUBO = std::make_unique<UniformBuffer<SpotLight>>(UniformBuffer<SpotLight>(10, 2));
+    m_camUBO = std::make_unique<UniformBuffer<CameraData>>(UniformBuffer<CameraData>(1, 3));
+}
+
+// CONSIDER FOR FUTURE USE!
+void Renderer::InitRenderer(unsigned int WIDTH, unsigned int HEIGHT,
+    void (*key_callback)(GLFWwindow*, int, int, int, int),
+    void (*framebuffer_size_callback)(GLFWwindow*, int, int),
+    void (*mouse_callback)(GLFWwindow*, int, int))
+{
+
+}
+
+bool Renderer::CreateContext(unsigned int WIDTH, unsigned int HEIGHT)
+{
+    GLFWwindow* current;
+    if (!setupWindow(WIDTH, HEIGHT, m_window)) {
+        std::cout << "ERROR::WINDOW_FAILED_TO_LOAD\n";
+        glfwTerminate();
+        return -1;
+    }
+
+    current = glfwGetCurrentContext();
+    if (current != m_window.get())
+        std::cout << "HERE";
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(
+        [](GLenum source, GLenum type, GLuint id, GLenum severity,
+            GLsizei length, const GLchar* message, const void* userParam)
+        {
+            std::cerr << "OpenGL DEBUG: " << message << std::endl;
+        }, 
+        nullptr);
+
+    // Setup the viewport!
+    glViewport(0, 0, WIDTH, HEIGHT);
+
+    // Set callbacks:
+    glfwSetKeyCallback(m_window.get(), key_callback);
+    glfwSetFramebufferSizeCallback(m_window.get(), framebuffer_size_callback);
+    glfwSetCursorPosCallback(m_window.get(), mouse_callback);
+
+    // Tell OpenGL to use the z-buffer for depth tests!
+    glEnable(GL_DEPTH_TEST);
+
+    // Tell the window to hide the cursor and 'capture' it to the screen.
+    glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    return true;
 }
 
 
-void Renderer::DrawInstanced(uint32_t modelID, uint32_t shaderID, const std::vector<glm::mat4>& data)
+void Renderer::DrawInstanced(uint32_t modelID, uint32_t shaderID, const std::vector<glm::mat4>& data, ResourceManager* rm)
 {
-    const LoadedModel& m = m_manager.GetModel(modelID);
-    const Shader& s = m_manager.GetShader(shaderID);
+    float current = glfwGetTime();
+    dt = current - last;
+    last = current;
 
-    if (true)
-        UpdateVBO(data);
+    glfwPollEvents();
+    processInput(m_window.get());
+
+    const LoadedModel& m = rm->GetModel(modelID);
+    const Shader& s = rm->GetShader(shaderID);
 
     s.Use();
+    UpdateVBO(data);
 
     for (Mesh mesh : m._meshes) {
-        mesh.Draw(s, data.size());
+       mesh.Draw(s, data.size());
     }
 }
 
@@ -50,17 +110,74 @@ void Renderer::Draw(const LoadedModel &m, const Shader &s, const glm::vec3 &posi
     }
 }
 
-
 void Renderer::UpdateVBO(const std::vector<glm::mat4>& data)
 {
     // A Non-persistent Map Orphaning implementation
-    size_t dataSize = sizeof(data);
+    size_t dataSize = data.size() * sizeof(glm::mat4);
     glBindBuffer(GL_ARRAY_BUFFER, m_DynamicVBO);
     auto* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, dataSize,
         GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-    memcpy(ptr, &data, dataSize);
+    memcpy(ptr, data.data(), dataSize);
     glUnmapBuffer(GL_ARRAY_BUFFER);
 }
+
+void Renderer::UpdateLightUBO(const LightVariant& light, size_t index)
+{
+    switch (light.index()) {
+        case 0: 
+            m_dirUBO->UpdateStruct(std::get<DirectionLight>(light), index);
+            break;
+        case 1: 
+            m_pointUBO->UpdateStruct(std::get<PointLight>(light), index);
+            break;
+        case 2: 
+            m_spotUBO->UpdateStruct(std::get<SpotLight>(light), index);
+            break;
+        default: std::cout << "ENCOUNTERED AN ISSUE IN RENDERER::UPDATE_LIGHT_UBO" << std::endl;
+    }
+}
+
+void Renderer::UpdateCamUBO(const glm::mat4& camView)
+{
+    m_camUBO->UpdateField(sizeof(glm::mat4), sizeof(glm::mat4), &camView, 0);
+}
+
+void Renderer::UpdateCamProj(const glm::mat4& proj)
+{
+    m_camUBO->UpdateField(0, sizeof(glm::mat4), &proj, 0);
+}
+
+void Renderer::AddUBOStruct(const LightVariant& light)
+{
+    switch (light.index()) {
+        case 0: 
+            m_dirUBO->AddStruct(std::get<DirectionLight>(light));
+            break;
+        case 1: 
+            m_pointUBO->AddStruct(std::get<PointLight>(light));
+            break;
+        case 2: 
+            m_spotUBO->AddStruct(std::get<SpotLight>(light));
+            break;
+        default: std::cout << "ENCOUNTERED AN ISSUE IN RENDERER::ADD_UBO_STRUCT" << std::endl;
+    }
+}
+
+void Renderer::SwapBuffers()
+{
+    glfwSwapBuffers(m_window.get());
+}
+
+unsigned int Renderer::GetDynamicVBO()
+{
+    return m_DynamicVBO;
+}
+
+void Renderer::ProcessInput()
+{
+    processInput(m_window.get());
+}
+
 
 void BoxRenderer::Draw(const Shader &s, const glm::vec3 &position,
     const glm::vec3 &size,const glm::vec3 color, GLFWwindow *curr)
