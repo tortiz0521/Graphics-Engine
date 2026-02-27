@@ -38,7 +38,6 @@ void BatchingSystem::Dispatch(std::function<void(uint32_t, uint32_t, const std::
 		data.emplace_back(transforms[m_batchedIndex[i]].get()->worldTransform);
 
 		if (i + 1 == m_batchedIndex.size()) {
-			//std::cout << "HERE\n";
 			RendererDraw(renders[m_batchedIndex[i]].get()->model, renders[m_batchedIndex[i]].get()->shader, data);
 			return;
 		}

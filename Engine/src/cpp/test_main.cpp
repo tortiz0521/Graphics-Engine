@@ -24,9 +24,10 @@ int main()
 
 	const uint32_t backpack = myScene.m_manager.get()->LoadModel("../../assets/backpack", r.GetDynamicVBO());
 
+	std::vector<std::shared_ptr<LightComponent>> lights{};
 	for (int i = 0; i < 3; i++) {
 		Entity light = myScene.AddEntity();
-		std::shared_ptr<LightComponent> lc = myScene.AddComponent<LightComponent>(light, r,
+		lights.emplace_back(myScene.AddComponent<LightComponent>(light, r,
 			LightComponent(Point, PointLight{
 				glm::vec4(10.0f * std::cos(glm::radians(120.0f * float(i))), 1.0f, 10.0f * std::sin(glm::radians(120.0f * float(i))
 				), 1.0f),
@@ -38,16 +39,14 @@ int main()
 				glm::vec4(0.5f),
 				glm::vec4(0.7f)
 			}
-		), Point);
+		), Point));
 	}
 
 	std::vector<std::shared_ptr<TransformComponent>> models{};
-	for (int i = 0; i < 10; i++) {
-		if (i == 0)
-			continue;
+	Entity prev = INVALID_ENTITY;
+	for (int i = 2; i < 10; i++) {
 
 		Entity e = myScene.AddEntity();
-		myScene.AddComponent<HierarchyComponent>(e, r);
 		models.emplace_back(myScene.AddComponent<TransformComponent>(e, r,
 			TransformComponent(
 				glm::vec3(float(i), float(i), -10.0f), // Translation
@@ -55,6 +54,9 @@ int main()
 				0.0f // Rotation
 		)));
 		std::shared_ptr<RenderComponent> rc = myScene.AddComponent<RenderComponent>(e, r, RenderComponent{backpack, standard});
+
+		myScene.AddComponent<HierarchyComponent>(e, r, HierarchyComponent{ prev, glm::mat4(1.0f) });
+		prev = e;
 	}
 
 	Entity cam = myScene.AddEntity();
@@ -75,7 +77,6 @@ int main()
 
 	while (true) {
 		for (int i = 0; i < models.size(); i++) {
-
 			models[i].get()->translation = glm::vec3(i * std::cos(glm::radians(float(glfwGetTime()) * 10.0f)), models[i].get()->translation.value.y,
 				i * std::sin(glm::radians(float(glfwGetTime()) * 10.0f))
 			);

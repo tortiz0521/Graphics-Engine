@@ -7,6 +7,8 @@
 #include <cassert>
 #include <glm/glm.hpp>
 #include <memory>
+#include <iostream>
+#include <utility>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
@@ -64,7 +66,8 @@ public:
 		m_lookup[e] = m_components.size(); // Place the entity in our lookup table.
 
 		// Emplace a new component and our entity in their respective containers.
-		m_components.emplace_back(std::make_shared<Component>(Component()));
+		std::shared_ptr<Component> c = std::make_shared<Component>(Component());
+		m_components.emplace_back(c);
 		m_entities.emplace_back(e);
 
 		return m_components.back();
@@ -80,9 +83,10 @@ public:
 		assert(m_lookup.size() == m_components.size());
 
 		m_lookup[e] = m_components.size(); // Place the entity in our lookup table.
+		//std::cout << "Before emp: " << &c << std::endl;
 
 		// Emplace a new component and our entity in their respective containers.
-		m_components.emplace_back(std::make_shared<Component>(c));
+		m_components.emplace_back(std::make_shared<Component>(std::move(c)));
 		m_entities.emplace_back(e);
 
 		return m_components.back();

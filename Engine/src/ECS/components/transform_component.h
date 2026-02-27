@@ -2,6 +2,7 @@
 #define TRANSFORM_COMPONENT_H
 
 #include "../_component_manager.h"
+#include <utility>
 
 struct TransformComponent 
 {
@@ -19,6 +20,26 @@ struct TransformComponent
 		translation = { trans, &dirty };
 		scale = { scl, &dirty };
 		rotation = { rot, &dirty };
+		SetTransform();
+	};
+
+	TransformComponent(TransformComponent&& tc) noexcept
+	{
+		translation = { tc.translation, &dirty };
+		scale = { tc.scale, &dirty };
+		rotation = { tc.rotation, &dirty };
+		SetTransform();
+
+		tc.translation = { glm::vec3(0.0f) ,&tc.dirty};
+		tc.scale = { glm::vec3(0.0f) ,&tc.dirty };
+		tc.rotation = { 0.0f ,&tc.dirty };
+	};
+
+	TransformComponent(const TransformComponent& tc)
+	{
+		translation = { tc.translation, &dirty };
+		scale = { tc.scale, &dirty };
+		rotation = { tc.rotation, &dirty };
 		SetTransform();
 	};
 

@@ -23,7 +23,7 @@ namespace HierarchySystem {
 		{
 			// Search if the 'child' is a 'parent' of any other entities and swap them!
 			if (hierarchy.GetCount() > 1) {
-				for (size_t i = hierarchy.GetCount(); i > 0; i--) {
+				for (size_t i = hierarchy.GetCount() - 1; i > 0; i--) {
 					for (size_t j = 0; j < i; j++) {
 						if (hierarchy[j].get()->parent == hierarchy.GetEntity(i)) {
 							hierarchy.MoveItem(i, j);
@@ -35,6 +35,9 @@ namespace HierarchySystem {
 			}
 
 			// Make sure that the necessary hierarchy components exist for the parent.
+			if (hc.parent == INVALID_ENTITY)
+				return;
+
 			std::shared_ptr<TransformComponent> parentTransform = transforms.GetComponent(hc.parent);
 			if (parentTransform == nullptr) {
 				transforms.Create(hc.parent);

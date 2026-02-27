@@ -25,6 +25,20 @@ struct LightComponent
 		data = { l, &dirty };
 	};
 
+	LightComponent(LightComponent&& lc) noexcept
+	{
+		type = lc.type;
+		data = { lc.data, &dirty };
+
+		lc.data = { LightVariant{}, &lc.dirty };
+	};
+
+	LightComponent(const LightComponent& lc)
+	{
+		type = lc.type;
+		data = { lc.data, &dirty };
+	};
+
 	LightComponent() {};
 
 private:

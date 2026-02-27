@@ -58,7 +58,7 @@ private:
 template<Component T>
 std::shared_ptr<T> Scene::AddComponent(Entity e, Renderer& r, const T&& data, LightType lightType)
 {
-	auto comp = [&](auto&& x) {
+	auto comp = [&](auto&& x) -> auto& {
 		if constexpr (std::is_same_v<std::decay_t<decltype(x)>, CameraComponent>) {
 			if (std::shared_ptr<CameraComponent> c = cameras.GetComponent(e)) {
 				std::cout << "ADD_COMPONENT_ERROR::COMPONENT_ALREADY_EXISTS::<CameraComponent>" << std::endl;
@@ -72,7 +72,7 @@ std::shared_ptr<T> Scene::AddComponent(Entity e, Renderer& r, const T&& data, Li
 				std::cout << "ADD_COMPONENT_ERROR::COMPONENT_ALREADY_EXISTS::<HierarchyComponent>" << std::endl;
 				return c;
 			}
-			return HierarchySystem::Attach(3, 4);
+			return HierarchySystem::Attach(e, std::move(static_cast<HierarchyComponent>(x)));
 		}
 		else if constexpr (std::is_same_v<std::decay_t<decltype(x)>, LightComponent>) {
 			if (std::shared_ptr<LightComponent> c = lights.GetComponent(e)) {
@@ -106,7 +106,9 @@ std::shared_ptr<T> Scene::AddComponent(Entity e, Renderer& r, const T&& data, Li
 				std::cout << "ADD_COMPONENT_ERROR::COMPONENT_ALREADY_EXISTS::<TransformComponent>" << std::endl;
 				return c;
 			}
-			return transforms.Create(e, static_cast<TransformComponent>(x));
+			std::shared_ptr<TransformComponent> c = transforms.Create(e, static_cast<TransformComponent>(x));
+			std::cout << "In scene  : " << &c.get()->dirty << std::endl;
+			return c;
 		}
 		else {
 			std::cout << "ADD_COMPONENT_ERROR::COMPONENT_TYPE_IS_NOT_AVAILABLE" << std::endl;

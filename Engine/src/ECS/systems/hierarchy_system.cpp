@@ -1,4 +1,5 @@
 #include "hierarchy_system.h"
+#include <iostream>
 
 // When we update our object transforms, the parent is the primary object that gets effected.
 // Each child object will be updated by multiplying the local transform (parent space) to the
@@ -57,7 +58,7 @@ void HierarchySystem::Reparent(Entity e, Entity newParent)
 void HierarchySystem::UpdateHierarchySystem()
 {
 	std::shared_ptr<LightComponent> lc = lights.GetComponent(transforms.GetEntity(0));
-	if (true) {//transforms[0].dirty) {
+	if (transforms[0].get()->dirty) {
 		transforms[0].get()->SetTransform();
 		transforms[0].get()->worldTransform = transforms[0].get()->localTransform;
 
@@ -81,13 +82,16 @@ void HierarchySystem::UpdateHierarchySystem()
 					);
 			}
 		}
+
+		transforms[0].get()->dirty = false;
 	}
 
 	glm::mat4 prev = transforms[0].get()->worldTransform;
 	for (uint32_t i = 1; i < transforms.GetCount(); i++) {
-		prev = transforms[i].get()->worldTransform;
-		//if(transforms[i].dirty)
+		if (transforms[i].get()->dirty) {
 			transforms[i].get()->SetTransform();
+			transforms[i].get()->dirty = false;
+		}
 
 		if (hierarchy[i].get()->parent == INVALID_ENTITY) {
 			transforms[i].get()->worldTransform = transforms[i].get()->localTransform;
@@ -117,5 +121,7 @@ void HierarchySystem::UpdateHierarchySystem()
 					);
 			}
 		}
+
+		prev = transforms[i].get()->worldTransform;
 	}
 }
