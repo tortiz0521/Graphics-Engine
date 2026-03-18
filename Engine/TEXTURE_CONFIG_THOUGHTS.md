@@ -1,5 +1,5 @@
 ### Some interesting things to note!
-While going through the process of making this small-scale engine, I asked myself a question about texture configs. Obviously, i we never plan on changing the configuration of a specific tecture, and therefore never attempting to generate another texture, this wouldn't necessarily be a problem; but what if we DID want to change what a texture is after it generates? There are a few questions I asked myself:
+While going through the process of making this small-scale engine, I asked myself a question about texture configs. I never plan on changing the configuration of a specific texture, and therefore never attempting to generate another texture, this wouldn't necessarily be a problem; but what if we DID want to change what a texture is after it generates? There are a few questions I asked myself:
 
     - Do we store each config variable in each class?
     - How do we go about reasonably changing the configs without needing to make unnecessary calls to setters?
@@ -29,7 +29,7 @@ This is just a hash of an integer. Now we want to include all of our other hashe
 We XOR the results from each hashing function with the current 'h' after we also shifting the bits. A bit shift is computed to simply ensure that different similar inputs from the variables are more difficult to recreate when they are in differing orders, thus lessening the amount of collisions. An XOR calculation is also performed as a way to "increase entropy" or effectively mix up the bits more. The final hash with the bool is not bit shifted since a bool is only 1 bit. While it could be nice to shift this bit, we already get a copmlete bit flipping from it anyways.
 
 
-This was the code that would contribute to a texture config setup! The 
+This was the code that would contribute to a texture config setup!
 
     // The general struct for a texture config.
     struct TextureConfig

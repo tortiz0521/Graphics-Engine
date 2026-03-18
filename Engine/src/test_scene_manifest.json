@@ -1,0 +1,14 @@
+{
+  "shader_manifest": [
+    {
+      "vertex_path": "../../assets/shaders/standard.vs",
+      "fragment_path": "../../assets/shaders/standard.fs"
+    }
+  ],
+
+  "model_manifest": [
+    "../../assets/backpack"
+  ],
+
+  "texture_manifest": []
+}

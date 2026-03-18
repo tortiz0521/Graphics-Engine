@@ -130,7 +130,7 @@ public:
     virtual void Draw(const LoadedModel &m, const Shader &s, const glm::vec3 &position,
         const glm::vec3 &size, const glm::vec3 color);
 
-    void DrawInstanced(uint32_t modelID, uint32_t shaderID, const std::vector<glm::mat4>& data, ResourceManager* rm);
+    void DrawInstanced(std::shared_ptr<LoadedModel> model, std::shared_ptr<Shader> shader, const std::vector<glm::mat4>& data);
     void InitRenderer(unsigned int WIDTH, unsigned int HEIGHT); 
     void InitRenderer(unsigned int WIDTH, unsigned int HEIGHT,
         void (*key_callback)(GLFWwindow*, int, int, int, int),
@@ -142,6 +142,7 @@ public:
     void UpdateCamUBO(const glm::mat4& camView);
     void UpdateCamProj(const glm::mat4& proj);
     void AddUBOStruct(const LightVariant& light);
+    void ClearUBOs(); // Called on scene change!
 
     void SwapBuffers();
     void ProcessInput();

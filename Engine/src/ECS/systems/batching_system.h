@@ -4,6 +4,7 @@
 #include "../components/render_component.h"
 #include "../components/transform_component.h"
 #include "../components/light_component.h"
+#include "../../headers/resource_manager.h"
 
 #include <memory>
 #include <functional>
@@ -15,13 +16,15 @@ namespace BatchingSystem {
 		void Rebatch() {
 			m_batchedIndex.clear();
 
-			for (unsigned int i = 0; i < renders.GetCount(); i++) {
+			for (unsigned int i = 0; i < renders.get()->GetCount(); i++) {
 				if (i == 0) {
 					m_batchedIndex.emplace_back(i);
+					if (m_batchedIndex.size() == 0)
+						std::cout << "WTF IS THIS SHIT" << std::endl;
 					continue;
 				}
-				else if (renders[i].get()->shader >= renders[m_batchedIndex.back()].get()->shader
-					&& renders[i].get()->model >= renders[m_batchedIndex.back()].get()->model) {
+				else if ((*renders.get())[i].get()->shader >= (*renders.get())[m_batchedIndex.back()].get()->shader
+					&& (*renders.get())[i].get()->model >= (*renders.get())[m_batchedIndex.back()].get()->model) {
 					m_batchedIndex.emplace_back(i);
 					continue;
 				}
@@ -29,8 +32,8 @@ namespace BatchingSystem {
 				size_t cur = i;
 				for (unsigned int j = 0; j < m_batchedIndex.size(); j++) {
 					size_t temp = m_batchedIndex[j];
-					if (renders[cur].get()->shader < renders[temp].get()->shader
-						&& renders[cur].get()->model < renders[temp].get()->model) {
+					if ((*renders.get())[cur].get()->shader < (*renders.get())[temp].get()->shader
+						&& (*renders.get())[cur].get()->model < (*renders.get())[temp].get()->model) {
 						m_batchedIndex[j] = cur;
 						cur = temp;
 					}
@@ -44,8 +47,10 @@ namespace BatchingSystem {
 		};
 	};
 
-	void Dispatch(std::function<void(uint32_t, uint32_t, const std::vector <glm::mat4>&)> RendererDraw);
+	void Dispatch(const SceneResourceManager& scene, std::function<void(std::shared_ptr<LoadedModel>, std::shared_ptr<Shader>, const std::vector <glm::mat4>&)> RendererDraw);
+	
 	void Batch();
+	void ResetBatch();
 };
 
 #endif

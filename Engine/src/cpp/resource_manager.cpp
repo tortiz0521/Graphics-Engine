@@ -1,7 +1,15 @@
 #include "../headers/resource_manager.h"
 
+std::unordered_map<std::string, uint32_t> AssetRegistry::path_ID;
+std::unordered_map<uint32_t, std::string> AssetRegistry::ID_path;
+
 const uint32_t ResourceManager::LoadShader(const char *vertex, const char *fragment, std::string_view name, const char * geometry)
 {
+    uint32_t ID = AssetRegistry::RegisterPath(name);
+    if (m_shaders[ID]) {
+        return ID;
+    }
+
     std::string vString, fString, gString;
     std::ifstream vfile, ffile, gfile;
 
@@ -41,14 +49,18 @@ const uint32_t ResourceManager::LoadShader(const char *vertex, const char *fragm
     s.Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
 
     // Hash ID from file name + place new shader in container.
-    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(name));
-    m_shaders[ID] = std::make_unique<Shader>(s);
+    m_shaders[ID] = std::make_shared<Shader>(s);
     return ID;
 
 }
 
 const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
 {
+    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(p));
+    if (m_textures[ID]) {
+        return Texture();
+    }
+
     Texture t = Texture();
 
     int width, height, nrComp;
@@ -73,17 +85,43 @@ const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
     stbi_image_free(data);
 
     // Hash ID fron file name + place new Texture in container.
-    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(p));
-    m_textures[ID] = std::make_unique<Texture>(t);
+    m_textures[ID] = std::make_shared<Texture>(t);
     return *m_textures[ID];
 }
 
-template<typename T>
-const UniformBuffer<T>& ResourceManager::loadUniformBuffer(std::string_view path)
+const uint32_t ResourceManager::LoadTexture_ID(std::string directory, TextureType type)
 {
-    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(path));
-    m_ubos[ID] = std::make_any<UniformBuffer<T>>();
-    return *m_ubos[ID];
+    uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(directory));
+    if (m_textures[ID]) {
+        return ID;
+    }
+
+    Texture t = Texture();
+
+    int width, height, nrComp;
+
+    unsigned char* data = stbi_load(directory.c_str(), &width, &height, &nrComp, 0);
+    if (data) {
+        GLenum format = GL_RGB;
+        if (nrComp == 1)
+            format = GL_RED;
+        else if (nrComp == 3)
+            format = GL_RGB;
+        else if (nrComp == 4)
+            format = GL_RGBA;
+
+        t.Generate(width, height, format, data, type, directory); // Generate Texture
+    }
+    else {
+        std::cout << "Here is the error: " << stbi_failure_reason() << '\n';
+        std::cout << "Texture failed to load at path: " << directory << '\n';
+    }
+
+    stbi_image_free(data);
+
+    // Hash ID fron file name + place new Texture in container.
+    m_textures[ID] = std::make_shared<Texture>(t);
+    return ID;
 }
 
 const uint32_t ResourceManager::LoadModel(std::string_view path, unsigned int persistentVBO)
@@ -94,27 +132,144 @@ const uint32_t ResourceManager::LoadModel(std::string_view path, unsigned int pe
     return ID;
 }
 
-const LoadedModel& ResourceManager::GetModel(uint32_t ID)
+// Loaded Model
+std::shared_ptr<LoadedModel> ResourceManager::GetModel(uint32_t ID)
 {
-    return *m_models[ID];
-    //return LoadedModel();
+    return m_models[ID];
 }
 
-const Shader& ResourceManager::GetShader(uint32_t ID)
+std::shared_ptr<LoadedModel> ResourceManager::GetModel(std::string_view path)
 {
-    return *m_shaders[ID];
-    //return Shader();
+    return m_models[static_cast<uint32_t>(std::hash<std::string_view>{}(path))];
 }
 
-const Texture& ResourceManager::GetTexture(std::string_view path)
+// Shader
+std::shared_ptr<Shader> ResourceManager::GetShader(uint32_t ID)
+{
+    return m_shaders[ID];
+}
+
+std::shared_ptr<Shader> ResourceManager::GetShader(std::string_view path)
+{
+    return m_shaders[static_cast<uint32_t>(std::hash<std::string_view>{}(path))];
+}
+
+// Texture
+std::shared_ptr<Texture> ResourceManager::GetTexture(uint32_t ID)
+{
+    return m_textures[ID];
+}
+
+std::shared_ptr<Texture> ResourceManager::GetTexture(std::string_view path)
 {
     uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(path));
-    return *m_textures[ID];
+    return m_textures[ID];
 }
 
-template<typename T>
-const UniformBuffer<T>& ResourceManager::getUniformBuffer(uint32_t ID)
+
+// SCENE_RESOURCE_MANAGER
+
+void SceneResourceManager::SetModelIDs(std::vector<uint32_t> ids, ResourceManager& rm)
 {
-    //return *m_ubos[ID].get();
-    return NULL;
+    for (uint32_t id : ids) {
+        m_modelIDs.emplace_back(id);
+        if (m_modelIDs.size() == 1)
+            continue;
+
+        for (int j = m_modelIDs.size() - 1; j > 0; j--) {
+            if (j - 1 < 0)
+                break;
+
+            if (m_modelIDs[j - 1] < m_modelIDs[j])
+                std::swap(m_modelIDs[j], m_modelIDs[j - 1]);
+            else break;
+        }
+    }
+}
+
+void SceneResourceManager::SetShaderIDs(std::vector<uint32_t> ids, ResourceManager& rm)
+{
+    for (uint32_t id : ids) {
+        m_shaderIDs.emplace_back(id);
+        if (m_shaderIDs.size() == 1)
+            continue;
+
+        for (int j = m_shaderIDs.size() - 1; j > 0; j--) {
+            if (j - 1 < 0)
+                break;
+
+            if (m_shaderIDs[j - 1] < m_shaderIDs[j])
+                std::swap(m_shaderIDs[j], m_shaderIDs[j - 1]);
+            else break;
+        }
+    }
+}
+
+
+void SceneResourceManager::UpdateSceneModels(std::vector<uint32_t> models, ResourceManager& rm)
+{
+    for (uint32_t id : models) {
+        if (m_modelIDs.size() == 0) {
+            m_modelIDs.emplace_back(id);
+            m_sceneModels.emplace_back(rm.GetModel(id));
+            continue;
+        }
+
+        m_modelIDs.emplace_back(id);
+        m_sceneModels.emplace_back(rm.GetModel(id));
+        // Reverse bubble sort
+        for (int j = m_modelIDs.size() - 1; j > 0; j--) {
+            if (j - 1 < 0)
+                break;
+
+            if (m_modelIDs[j - 1] < m_modelIDs[j]) {
+                std::swap(m_modelIDs[j], m_modelIDs[j - 1]);
+                std::swap(m_sceneModels[j], m_sceneModels[j - 1]);
+            }
+            else break;
+        }
+    }
+}
+
+void SceneResourceManager::UpdateSceneShaders(std::vector<uint32_t> shaders, ResourceManager& rm)
+{
+    for (uint32_t id : shaders) {
+        if (m_modelIDs.size() == 0) {
+            m_shaderIDs.emplace_back(id);
+            m_sceneShaders.emplace_back(rm.GetShader(id));
+        }
+
+        m_shaderIDs.emplace_back(id);
+        m_sceneShaders.emplace_back(rm.GetShader(id));
+        // Reverse bubble sort
+        for (int j = m_shaderIDs.size() - 1; j > 0; j--) {
+            if (j - 1 < 0)
+                break;
+
+            if (m_shaderIDs[j - 1] < m_shaderIDs[j]) {
+                std::swap(m_shaderIDs[j], m_shaderIDs[j - 1]);
+                std::swap(m_sceneShaders[j], m_sceneShaders[j - 1]);
+            }
+            else break;
+        }
+    }
+}
+
+void SceneResourceManager::SceneUnload()
+{
+    m_sceneModels = {};
+    m_sceneShaders = {};
+    m_sceneTexs = {};
+}
+
+void SceneResourceManager::SceneLoad(ResourceManager& rm)
+{
+    for (uint32_t id : m_modelIDs)
+        m_sceneModels.emplace_back(rm.GetModel(id));
+
+    for (uint32_t id : m_shaderIDs)
+        m_sceneShaders.emplace_back(rm.GetShader(id));
+
+    for (uint32_t id : m_texIDs)
+        m_sceneTexs.emplace_back(rm.GetTexture(id));
 }

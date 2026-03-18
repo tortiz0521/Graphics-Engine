@@ -8,44 +8,44 @@
 // Attach a new entity to the hierarchy system.
 std::shared_ptr<HierarchyComponent>& HierarchySystem::Attach(Entity entity, Entity parent)
 {
-	std::shared_ptr<HierarchyComponent>& hc = hierarchy.Create(entity);
+	std::shared_ptr<HierarchyComponent>& hc = hierarchy.get()->Create(entity);
 	hc.get()->parent = parent;
 
-	containerUpdate(*hc.get());
+	containerUpdate(hc.get());
 	return hc;
 }
 
 std::shared_ptr<HierarchyComponent>& HierarchySystem::Attach(Entity e, HierarchyComponent&& comp)
 {
-	std::shared_ptr<HierarchyComponent>& hc = hierarchy.Create(e, std::move(comp));
-	containerUpdate(*hc.get());
+	std::shared_ptr<HierarchyComponent>& hc = hierarchy.get()->Create(e, std::move(comp));
+	containerUpdate(hc.get());
 	return hc;
 }
 
 // Detach an entity from the hierarchy system.
 void HierarchySystem::Detach(Entity e)
 {
-	std::shared_ptr<HierarchyComponent> hc = hierarchy.GetComponent(e);
+	std::shared_ptr<HierarchyComponent> hc = hierarchy.get()->GetComponent(e);
 
 	if (hc != nullptr) {
-		std::shared_ptr<TransformComponent> tc = transforms.GetComponent(e);
+		std::shared_ptr<TransformComponent> tc = transforms.get()->GetComponent(e);
 		if (tc != nullptr) {
 			tc->localTransform = tc->worldTransform;
 		}
 
 		hc->parent = INVALID_ENTITY;
-		size_t index = hierarchy.GetIndex(e);
-		hierarchy.MoveItem(index, hierarchy.GetCount());
+		size_t index = hierarchy.get()->GetIndex(e);
+		hierarchy.get()->MoveItem(index, hierarchy.get()->GetCount());
 	} 
 }
 
 void HierarchySystem::Reparent(Entity e, Entity newParent)
 {
-	std::shared_ptr<HierarchyComponent> hc = hierarchy.GetComponent(e);
+	std::shared_ptr<HierarchyComponent> hc = hierarchy.get()->GetComponent(e);
 
-	if (hc != nullptr && hierarchy.GetComponent(newParent) != nullptr) {
-		std::shared_ptr<TransformComponent> tc = transforms.GetComponent(e);
-		std::shared_ptr<TransformComponent> ptc = transforms.GetComponent(newParent);
+	if (hc != nullptr && hierarchy.get()->GetComponent(newParent) != nullptr) {
+		std::shared_ptr<TransformComponent> tc = transforms.get()->GetComponent(e);
+		std::shared_ptr<TransformComponent> ptc = transforms.get()->GetComponent(newParent);
 
 		if (tc != nullptr && ptc != nullptr) {
 			tc->localTransform = glm::inverse(ptc->worldTransform) * tc->worldTransform;
@@ -55,73 +55,78 @@ void HierarchySystem::Reparent(Entity e, Entity newParent)
 	}
 }
 
+void HierarchySystem::ResetHierarchy()
+{
+	containerUpdate();
+}
+
 void HierarchySystem::UpdateHierarchySystem()
 {
-	std::shared_ptr<LightComponent> lc = lights.GetComponent(transforms.GetEntity(0));
-	if (transforms[0].get()->dirty) {
-		transforms[0].get()->SetTransform();
-		transforms[0].get()->worldTransform = transforms[0].get()->localTransform;
+	std::shared_ptr<LightComponent> lc = lights.get()->GetComponent(transforms.get()->GetEntity(0));
+	if ((*transforms.get())[0].get()->dirty) {
+		(*transforms.get())[0].get()->SetTransform();
+		(*transforms.get())[0].get()->worldTransform = (*transforms.get())[0].get()->localTransform;
 
 		if (lc) {
 			switch (lc->data.value.index()) {
 				case 0: break;
 				case 1:
 					std::get<PointLight>(lc->data.value).pos = glm::vec4(
-						transforms[0].get()->worldTransform[0][3],
-						transforms[0].get()->worldTransform[1][3],
-						transforms[0].get()->worldTransform[2][3],
+						(*transforms.get())[0].get()->worldTransform[0][3],
+						(*transforms.get())[0].get()->worldTransform[1][3],
+						(*transforms.get())[0].get()->worldTransform[2][3],
 						1.0f
 					);
 					break;
 				case 2:
 					std::get<SpotLight>(lc->data.value).pos = glm::vec4(
-						transforms[0].get()->worldTransform[0][3],
-						transforms[0].get()->worldTransform[1][3],
-						transforms[0].get()->worldTransform[2][3],
+						(*transforms.get())[0].get()->worldTransform[0][3],
+						(*transforms.get())[0].get()->worldTransform[1][3],
+						(*transforms.get())[0].get()->worldTransform[2][3],
 						1.0f
 					);
 			}
 		}
 
-		transforms[0].get()->dirty = false;
+		(*transforms.get())[0].get()->dirty = false;
 	}
 
-	glm::mat4 prev = transforms[0].get()->worldTransform;
-	for (uint32_t i = 1; i < transforms.GetCount(); i++) {
-		if (transforms[i].get()->dirty) {
-			transforms[i].get()->SetTransform();
-			transforms[i].get()->dirty = false;
+	glm::mat4 prev = (*transforms.get())[0].get()->worldTransform;
+	for (uint32_t i = 1; i < transforms.get()->GetCount(); i++) {
+		if ((*transforms.get())[i].get()->dirty) {
+			(*transforms.get())[i].get()->SetTransform();
+			(*transforms.get())[i].get()->dirty = false;
 		}
 
-		if (hierarchy[i].get()->parent == INVALID_ENTITY) {
-			transforms[i].get()->worldTransform = transforms[i].get()->localTransform;
+		if ((*hierarchy.get())[i].get()->parent == INVALID_ENTITY) {
+			(*transforms.get())[i].get()->worldTransform = (*transforms.get())[i].get()->localTransform;
 			continue;
 		}
 		
-		transforms[i].get()->worldTransform = prev * transforms[i].get()->localTransform;
+		(*transforms.get())[i].get()->worldTransform = prev * (*transforms.get())[i].get()->localTransform;
 
-		lc = lights.GetComponent(transforms.GetEntity(i));
+		lc = lights.get()->GetComponent(transforms.get()->GetEntity(i));
 		if (lc) {
 			switch (lc->data.value.index()) {
 				case 0: break;
 				case 1:
 					std::get<PointLight>(lc->data.value).pos = glm::vec4(
-						transforms[0].get()->worldTransform[0][3],
-						transforms[0].get()->worldTransform[1][3],
-						transforms[0].get()->worldTransform[2][3],
+						(*transforms.get())[0].get()->worldTransform[0][3],
+						(*transforms.get())[0].get()->worldTransform[1][3],
+						(*transforms.get())[0].get()->worldTransform[2][3],
 						1.0f
 					);
 					break;
 				case 2:
 					std::get<SpotLight>(lc->data.value).pos = glm::vec4(
-						transforms[0].get()->worldTransform[0][3],
-						transforms[0].get()->worldTransform[1][3],
-						transforms[0].get()->worldTransform[2][3],
+						(*transforms.get())[0].get()->worldTransform[0][3],
+						(*transforms.get())[0].get()->worldTransform[1][3],
+						(*transforms.get())[0].get()->worldTransform[2][3],
 						1.0f
 					);
 			}
 		}
 
-		prev = transforms[i].get()->worldTransform;
+		prev = (*transforms.get())[i].get()->worldTransform;
 	}
 }

@@ -9,6 +9,7 @@
 #include <memory>
 #include <iostream>
 #include <utility>
+#include <algorithm>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
@@ -201,10 +202,23 @@ public:
 		return false;
 	};
 
+	// SHOULD ONLY BE USED WHEN SORTING!!!
+	void UpdateContainers(const std::vector<std::shared_ptr<Component>>&& comps, const std::vector<Entity>&& entities)
+	{
+		m_components.clear();
+		m_components = comps;
+		m_entities.clear();
+		m_entities = entities;
+	}
+
+	bool* GetDirty() { return &dirty; };
+
 private:
 	std::vector<std::shared_ptr<Component>> m_components;
 	std::vector<Entity> m_entities;
 	std::unordered_map<Entity, size_t> m_lookup; // Look up an entities component without iterating through the whole array.
+
+	bool dirty = false;
 };
 
 #endif

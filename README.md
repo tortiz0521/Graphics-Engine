@@ -14,3 +14,7 @@ As a part of trying to design a directory that is usable across systems, I also 
 
 ### Engine (PRODUCTION)
 The engine itself. This is the most important aspect of the entire project. Here, the complete implementation of the engine can be found with its .h/.cpp files, along with some default shaders that any game within the directory can use.
+
+Future work to be done on the engine:
+
+    - Write project config files that the engine can use. Potentailly stored in some JSON file, maybe just a config.h file. Fow now, a lot of configurations are being hard-coded.

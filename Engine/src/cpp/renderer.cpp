@@ -65,7 +65,7 @@ bool Renderer::CreateContext(unsigned int WIDTH, unsigned int HEIGHT)
 }
 
 
-void Renderer::DrawInstanced(uint32_t modelID, uint32_t shaderID, const std::vector<glm::mat4>& data, ResourceManager* rm)
+void Renderer::DrawInstanced(std::shared_ptr<LoadedModel> model, std::shared_ptr<Shader> shader, const std::vector<glm::mat4>& data)
 {
     float current = glfwGetTime();
     dt = current - last;
@@ -74,14 +74,14 @@ void Renderer::DrawInstanced(uint32_t modelID, uint32_t shaderID, const std::vec
     glfwPollEvents();
     processInput(m_window.get());
 
-    const LoadedModel& m = rm->GetModel(modelID);
-    const Shader& s = rm->GetShader(shaderID);
+    //const LoadedModel& m = *model.get();
+    //const Shader& s = *shader.get();
 
-    s.Use();
+    shader.get()->Use();
     UpdateVBO(data);
 
-    for (Mesh mesh : m._meshes) {
-       mesh.Draw(s, data.size());
+    for (Mesh mesh : model.get()->_meshes) {
+       mesh.Draw(*shader.get(), data.size());
     }
 }
 
@@ -125,13 +125,22 @@ void Renderer::UpdateLightUBO(const LightVariant& light, size_t index)
 {
     switch (light.index()) {
         case 0: 
-            m_dirUBO->UpdateStruct(std::get<DirectionLight>(light), index);
+            if (index >= m_dirUBO->size())
+                m_dirUBO->AddStruct(std::get<DirectionLight>(light));
+            else
+                m_dirUBO->UpdateStruct(std::get<DirectionLight>(light), index);
             break;
         case 1: 
-            m_pointUBO->UpdateStruct(std::get<PointLight>(light), index);
+            if (index >= m_pointUBO->size())
+                m_pointUBO->AddStruct(std::get<PointLight>(light));
+            else    
+                m_pointUBO->UpdateStruct(std::get<PointLight>(light), index);
             break;
         case 2: 
-            m_spotUBO->UpdateStruct(std::get<SpotLight>(light), index);
+            if (index >= m_spotUBO->size())
+                m_spotUBO->AddStruct(std::get<SpotLight>(light));
+            else
+                m_spotUBO->UpdateStruct(std::get<SpotLight>(light), index);
             break;
         default: std::cout << "ENCOUNTERED AN ISSUE IN RENDERER::UPDATE_LIGHT_UBO" << std::endl;
     }
@@ -162,6 +171,17 @@ void Renderer::AddUBOStruct(const LightVariant& light)
         default: std::cout << "ENCOUNTERED AN ISSUE IN RENDERER::ADD_UBO_STRUCT" << std::endl;
     }
 }
+
+// NO RESET ON unique_ptr! 'operator=' on a unique pointer will automatically perform a 'reset' of sorts, calling the deleter
+// on whatever old memory was there and assigning your unique pointer lvalue to the rvalue reference passed int
+void Renderer::ClearUBOs()
+{
+    m_dirUBO = std::make_unique<UniformBuffer<DirectionLight>>(UniformBuffer<DirectionLight>(5, 0));
+    m_pointUBO = std::make_unique<UniformBuffer<PointLight>>(UniformBuffer<PointLight>(10, 1));
+    m_spotUBO = std::make_unique<UniformBuffer<SpotLight>>(UniformBuffer<SpotLight>(10, 2));
+}
+
+
 
 void Renderer::SwapBuffers()
 {

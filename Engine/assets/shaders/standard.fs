@@ -47,20 +47,18 @@ struct PointLight // Think of as a lamp of sorts.
 struct SpotLight // Think of as a flashlight.
 {
 	// Both the position AND direction of the light source.
-	vec3 pos;
-	vec3 direction;
+	vec4 pos;
+	vec4 direction;
+
+	vec4 attenuation;
+
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
 
 	// Variables that allow us to make smooth/soft edges.
 	float cutOff;
 	float outerCutOff;
-
-	float constant;
-	float linear;
-	float quadratic;
-
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
 };
 
 uniform Material mat;
@@ -172,24 +170,24 @@ vec3 CalcPointLight(PointLight light, vec3 n, vec3 viewDir)
 
 vec3 CalcSpotLight(SpotLight light, vec3 n, vec3 viewDir)
 {
-	vec3 lightDir = normalize(light.pos - modelPos);
-	float theta = dot(lightDir, normalize(-light.direction));
+	vec3 lightDir = normalize(light.pos.xyz - modelPos);
+	float theta = dot(lightDir, normalize(-light.direction.xyz));
 
 	if (theta > light.outerCutOff) {
 
-		float lightDistance = length(light.pos - modelPos);
+		float lightDistance = length(light.pos.xyz - modelPos);
 		float attenuation = 1.0 / (
-			light.constant + (light.linear * lightDistance) + (light.quadratic * lightDistance * lightDistance)
+			light.attenuation.x + (light.attenuation.y * lightDistance) + (light.attenuation.z * lightDistance * lightDistance)
 		);
 
-		vec3 a = light.ambient * vec3(texture(mat.texture_diffuse1, texCoord));
+		vec3 a = light.ambient.xyz * vec3(texture(mat.texture_diffuse1, texCoord));
 
 		float diff = max(0.0, dot(n, lightDir));
-		vec3 d = light.diffuse * diff * vec3(texture(mat.texture_diffuse1, texCoord));
+		vec3 d = light.diffuse.xyz * diff * vec3(texture(mat.texture_diffuse1, texCoord));
 
 		vec3 reflectDir = reflect(n, -lightDir);
 		float spec = pow(max(0.0, dot(viewDir, lightDir)), mat.shininess);
-		vec3 s = light.specular * spec * vec3(texture(mat.texture_specular1, texCoord));
+		vec3 s = light.specular.xyz * spec * vec3(texture(mat.texture_specular1, texCoord));
 
 																// EPSILON
 		float intensity = clamp((theta - light.outerCutOff) / (light.cutOff - light.outerCutOff), 0.0, 1.0);

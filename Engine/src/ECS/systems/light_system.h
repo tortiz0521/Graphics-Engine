@@ -6,8 +6,11 @@
 
 namespace LightSystem
 {
-	std::shared_ptr<LightComponent>& AddLight(Entity e, LightType type, LightComponent&& data,
-		std::function<void(const LightVariant& l)> AddUBOStruct);
+	std::shared_ptr<LightComponent> AddLight(Entity e, LightType type, LightComponent&& data);
+
+	void SortLights();
+
+	void PopulateLightUBOs(std::function<void(const LightVariant& l)> AddUBOStruct);
 
 	void UpdateLights(std::function<void(const LightVariant& l, size_t index)> UpdateUBO);
 

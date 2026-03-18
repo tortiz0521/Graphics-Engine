@@ -9,9 +9,17 @@ struct HierarchyComponent
 {
 	Entity parent = INVALID_ENTITY;
 	glm::mat4 parentInverseBind{}; // For skeletons on deparenting/reparenting!
+
+	HierarchyComponent& operator=(const HierarchyComponent& rhs)
+	{
+		parent = rhs.parent;
+		parentInverseBind = rhs.parentInverseBind;
+
+		return *this;
+	}
 };
 
 // This exists here because there should only be ONE manager!
-extern ComponentManager<HierarchyComponent> hierarchy;
+extern std::shared_ptr<ComponentManager<HierarchyComponent>> hierarchy;
 
 #endif

@@ -36,10 +36,14 @@ CMAKE_CXX_FLAGS_RELEASE:STRING=/O2 /Ob2 /DNDEBUG
 CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=/Zi /O2 /Ob1 /DNDEBUG
 
 //No help, variable specified on the command line.
-CMAKE_CXX_STANDARD:STRING=20
+CMAKE_CXX_STANDARD:STRING=23
 
 //Libraries linked by default with all C++ applications.
 CMAKE_CXX_STANDARD_LIBRARIES:STRING=kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
+
+//Boolean describing whether the value of CMAKE_CXX_STANDARD is
+// a requirement.
+CMAKE_CXX_STANDARD_REQUIRED:BOOL=ON
 
 //Flags used by the C compiler during all build types.
 CMAKE_C_FLAGS:STRING=/DWIN32 /D_WINDOWS
@@ -180,8 +184,8 @@ CMAKE_STATIC_LINKER_FLAGS_RELEASE:STRING=
 // during RELWITHDEBINFO builds.
 CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 
-//The CMake toolchain file
-CMAKE_TOOLCHAIN_FILE:FILEPATH=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+//No help, variable specified on the command line.
+CMAKE_TOOLCHAIN_FILE:STRING=C:\vcpkg/scripts/buildsystems/vcpkg.cmake
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
@@ -282,6 +286,9 @@ assimp_DIR:PATH=C:/vcpkg/installed/x64-windows-static/share/assimp
 
 //The directory containing a CMake configuration file for glad.
 glad_DIR:PATH=C:/vcpkg/installed/x64-windows-static/share/glad
+
+//The directory containing a CMake configuration file for glaze.
+glaze_DIR:PATH=C:/vcpkg/installed/x64-windows-static/share/glaze
 
 //The directory containing a CMake configuration file for glfw3.
 glfw3_DIR:PATH=C:/vcpkg/installed/x64-windows-static/share/glfw3

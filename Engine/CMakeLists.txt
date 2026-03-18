@@ -18,12 +18,14 @@ find_package(glfw3 CONFIG REQUIRED)
 
 find_package(assimp CONFIG REQUIRED)
 
+find_package(glaze CONFIG REQUIRED)
+
 add_executable(Engine)
 
 set_output(Engine)
 
 target_sources(Engine PRIVATE
-    src/cpp/test_main.cpp
+    #src/cpp/test_main.cpp
     src/cpp/_mesh.cpp
     src/cpp/_model.cpp
     src/cpp/_shader.cpp
@@ -36,7 +38,8 @@ target_sources(Engine PRIVATE
     src/cpp/scene.cpp
     src/ECS/systems/camera_system.cpp
     src/ECS/systems/light_system.cpp
- "src/engine.h" "src/ECS/components/_component_defs.cpp")
+    src/engine_test.cpp
+ "src/engine.h" "src/ECS/components/_component_defs.cpp" "src/engine.cpp" "src/_json_parser.h")
 
 
 target_link_libraries(Engine PRIVATE
@@ -45,4 +48,5 @@ target_link_libraries(Engine PRIVATE
     glad::glad
     glfw
     assimp::assimp
+    glaze::glaze
 )

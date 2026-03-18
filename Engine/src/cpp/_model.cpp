@@ -19,7 +19,7 @@ void ResourceManager::loadModel(std::string_view path, unsigned int persistentVB
     m._name = temp;
     processNode(scene->mRootNode, scene, m, persistentVBO);
     uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(temp));
-    m_models[ID] = std::make_unique<LoadedModel>(m);
+    m_models[ID] = std::make_shared<LoadedModel>(m);
 }
 
 void ResourceManager::processNode(

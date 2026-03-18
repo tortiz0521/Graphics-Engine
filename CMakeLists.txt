@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "Boolean describing whether the value of CMAKE_CXX_STANDARD is a requirement." FORCE)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Set this BEFORE creating the project!

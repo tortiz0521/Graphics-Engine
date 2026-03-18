@@ -10,34 +10,32 @@
 // This is used to ensure that there is no allignment optimizing being done so it matches GPU memory.
 
 struct DirectionLight {
-    glm::vec3 direction;
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
+    glm::vec4 direction{};
+    glm::vec4 ambient{};
+    glm::vec4 diffuse{};
+    glm::vec4 specular{};
 };
 
 struct PointLight {
-    glm::vec4 pos;
-    glm::vec4 attenuation;
-    //float constant;
-    //float linear;
-    //float quadratic;
-    glm::vec4 ambient;
-    glm::vec4 diffuse;
-    glm::vec4 specular;
+    glm::vec4 pos{};
+    glm::vec4 attenuation{};
+    glm::vec4 ambient{};
+    glm::vec4 diffuse{};
+    glm::vec4 specular{};
 };
 
 struct SpotLight {
-    glm::vec3 pos;
-    glm::vec3 direction;
+    glm::vec4 pos{};
+    glm::vec4 direction{};
+    glm::vec4 attenuation{};
+    //float constant;
+    //float linear;
+    //float quadratic;
+    glm::vec4 ambient{};
+    glm::vec4 diffuse{};
+    glm::vec4 specular{};
     float intCut;
     float outCut;
-    float constant;
-    float linear;
-    float quadratic;
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
 };
 
 typedef std::variant<DirectionLight, PointLight, SpotLight> LightVariant;
@@ -61,6 +59,8 @@ public:
     bool AddStruct(const T& data);
     // Primarily used for if a light has been removed! Good for ensuring that data will be packed back together with space to allow for AddStruct() to work.
     UniformBuffer& ResetBuffer(const std::vector<T>& dataList);
+
+    size_t size() { return m_curSize; };
 
 private:
     unsigned int m_UBO;

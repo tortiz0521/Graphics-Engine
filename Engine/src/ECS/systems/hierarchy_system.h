@@ -19,32 +19,34 @@ namespace HierarchySystem {
 			child->worldTransform = parent->localTransform * child->localTransform;
 		};
 
-		void containerUpdate(HierarchyComponent& hc)
+		void containerUpdate(HierarchyComponent* hc = nullptr)
 		{
 			// Search if the 'child' is a 'parent' of any other entities and swap them!
-			if (hierarchy.GetCount() > 1) {
-				for (size_t i = hierarchy.GetCount() - 1; i > 0; i--) {
+			if (hierarchy.get()->GetCount() > 1) {
+				for (size_t i = hierarchy.get()->GetCount() - 1; i > 0; i--) {
 					for (size_t j = 0; j < i; j++) {
-						if (hierarchy[j].get()->parent == hierarchy.GetEntity(i)) {
-							hierarchy.MoveItem(i, j);
-							transforms.MoveItem(i, j);
+						if ((*hierarchy.get())[j].get()->parent == hierarchy.get()->GetEntity(i)) {
+							hierarchy.get()->MoveItem(i, j);
+							transforms.get()->MoveItem(i, j);
 							++i;
 						}
 					}
 				}
 			}
 
-			// Make sure that the necessary hierarchy components exist for the parent.
-			if (hc.parent == INVALID_ENTITY)
+			// Make sure that the necessary hierarchy components exists for the parent.
+			if (!hc)
+				return;
+			else if (hc->parent == INVALID_ENTITY)
 				return;
 
-			std::shared_ptr<TransformComponent> parentTransform = transforms.GetComponent(hc.parent);
+			std::shared_ptr<TransformComponent> parentTransform = transforms.get()->GetComponent(hc->parent);
 			if (parentTransform == nullptr) {
-				transforms.Create(hc.parent);
+				transforms.get()->Create(hc->parent);
 					//.SetTransform();
 			}
 			else {
-				hc.parentInverseBind = glm::inverse(parentTransform->worldTransform);
+				hc->parentInverseBind = glm::inverse(parentTransform->worldTransform);
 			}
 		};
 	}
@@ -55,6 +57,7 @@ namespace HierarchySystem {
 	void Detach(Entity e);
 	void Reparent(Entity child, Entity parent);
 
+	void ResetHierarchy();
 	void UpdateHierarchySystem();
 };
 

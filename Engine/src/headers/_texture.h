@@ -10,9 +10,9 @@
 enum TextureType 
 {
     NONE = 0,
-    DIFFUSE,
-    NORMAL,
-    SPECULAR
+    DIFFUSE = 1,
+    NORMAL = 2,
+    SPECULAR = 3
 };
 
 // A single texture. We can generate what the texture is, then bind it to our programs.

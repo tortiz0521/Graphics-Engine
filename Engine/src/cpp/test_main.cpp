@@ -9,20 +9,26 @@ int main()
 {
 	Scene myScene{};
 	Renderer r{};
+	ResourceManager rm{};
 	r.InitRenderer(800, 600);
 
-	const Texture& con2 = myScene.m_manager.get()->LoadTexture("../../assets/textures/container2.png", NONE);
+	const Texture& con2 = rm.LoadTexture("../../assets/textures/container2.png", NONE);
 
-	const Texture& con2_spec = myScene.m_manager.get()->LoadTexture("../../assets/textures/container2_specular.png", NONE);
+	const Texture& con2_spec = rm.LoadTexture("../../assets/textures/container2_specular.png", NONE);
 
 	// Update the resource manager:
-	const uint32_t box = myScene.m_manager.get()->LoadShader("../../assets/shaders/box.vs",
+	const uint32_t box = rm.LoadShader("../../assets/shaders/box.vs",
 		"../../assets/shaders/box.fs", "box");
 
-	const uint32_t standard = myScene.m_manager.get()->LoadShader("../../assets/shaders/standard.vs",
+	const uint32_t standard = rm.LoadShader("../../assets/shaders/standard.vs",
 		"../../assets/shaders/standard.fs", "standard");
 
-	const uint32_t backpack = myScene.m_manager.get()->LoadModel("../../assets/backpack", r.GetDynamicVBO());
+	const uint32_t backpack = rm.LoadModel("../../assets/backpack", r.GetDynamicVBO());
+
+	myScene.m_manager.get()->SetModelIDs({ backpack, box }, rm);
+	myScene.m_manager.get()->SetShaderIDs({ standard }, rm);
+
+	myScene.m_manager.get()->SceneLoad(rm);
 
 	std::vector<std::shared_ptr<LightComponent>> lights{};
 	for (int i = 0; i < 3; i++) {

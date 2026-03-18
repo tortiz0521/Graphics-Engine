@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <string_view>
 #include <memory>
+#include <algorithm>
 #include <any>
 #include <sstream>
 #include <fstream>
@@ -24,22 +25,39 @@
 
 struct TransparentHasher {
     using is_transparent = void; // Signals to std library containers that we are using a transparent comparator.
-    size_t operator()(std::string_view sv) const {
-        return std::hash<std::string_view>{}(sv);
+    uint32_t operator()(std::string_view sv) const {
+        return static_cast<uint32_t>(std::hash<std::string_view>{}(sv));
     }
 };
 
-struct IDHasher {
-    using is_transparent = void;
-    uint32_t operator()(const std::string_view& sv) const {
-        size_t h = std::hash<std::string_view>{}(sv);
-        return static_cast<uint32_t>(h);
-    }
-};
+static const uint32_t INVALID_ID = -1;
 
-struct IDEqual {
-    bool operator()(const uint32_t a, const uint32_t b) {
-        return a == b;
+struct AssetRegistry
+{
+    static std::unordered_map<std::string, uint32_t> path_ID;
+    static std::unordered_map<uint32_t, std::string> ID_path;
+
+    static uint32_t RegisterPath(std::string_view path)
+    {
+        auto it = path_ID.find(std::string(path));
+        if (it != path_ID.end())
+            return it->second;
+
+        uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(path));
+        path_ID.emplace(path, ID);
+        ID_path.emplace(ID, path);
+
+        return ID;
+    };
+
+    static std::string_view PathFromID(uint32_t id)
+    {
+        return ID_path[id];
+    };
+
+    static uint32_t IDFromPath(std::string_view s)
+    {
+        return path_ID[std::string(s)];
     }
 };
 
@@ -56,18 +74,19 @@ public:
     // Load shaders/textures from their files
     const uint32_t LoadShader(const char* vertex, const char* fragment, std::string_view name, const char* geometry = nullptr);
     const Texture& LoadTexture(std::string directory, TextureType type);
+    const uint32_t LoadTexture_ID(std::string directory, TextureType type);
     const uint32_t LoadModel(std::string_view path, unsigned int persistentVBO);
 
     // Get shaders/textures from their maps
-    const Shader& GetShader(uint32_t ID);
-    const Texture& GetTexture(std::string_view path);
-    const LoadedModel& GetModel(uint32_t ID);
+    std::shared_ptr<Shader> GetShader(uint32_t ID);
+    std::shared_ptr<Texture> GetTexture(uint32_t ID);
+    std::shared_ptr<LoadedModel> GetModel(uint32_t ID);
+
+    std::shared_ptr<Shader> GetShader(std::string_view path);
+    std::shared_ptr<Texture> GetTexture(std::string_view path);
+    std::shared_ptr<LoadedModel> GetModel(std::string_view path);
 
 private:
-    // Logic for creating a Uniform Buffer Object...
-    template<typename T> const UniformBuffer<T>& loadUniformBuffer(std::string_view path);
-    template<typename T> const UniformBuffer<T>& getUniformBuffer(uint32_t ID);
-
     /*  
         IMPORTANT NOTE: Each node contains meshes that exist in the scene to allow for reusability!
         A mesh exists as a member of a scene, but each node controls its own meshes transform data.
@@ -81,16 +100,36 @@ private:
         aiMaterial *mat, aiTextureType aiType, TextureType type, LoadedModel& m
     );
 
-    // Maps for textures/shaders
-    std::unordered_map<std::string, std::unique_ptr<Shader>, TransparentHasher, std::equal_to<>> shaders;
-    std::unordered_map<std::string, std::unique_ptr<Texture>, TransparentHasher, std::equal_to<>> textures;
-    std::unordered_map<std::string, std::unique_ptr<LoadedModel>, TransparentHasher, std::equal_to<>> models;
-
     // ID Based maps for general resources.
-    std::unordered_map<uint32_t, std::unique_ptr<Shader>> m_shaders;
-    std::unordered_map<uint32_t, std::unique_ptr<Texture>> m_textures;
-    std::unordered_map<uint32_t, std::unique_ptr<LoadedModel>> m_models;
-    std::unordered_map<uint32_t, std::unique_ptr<std::any>> m_ubos;
+    std::unordered_map<uint32_t, std::shared_ptr<Shader>> m_shaders;
+    std::unordered_map<uint32_t, std::shared_ptr<Texture>> m_textures;
+    std::unordered_map<uint32_t, std::shared_ptr<LoadedModel>> m_models;
+};
+
+
+class SceneResourceManager
+{
+public:
+    SceneResourceManager() = default;
+
+    std::vector<uint32_t> m_shaderIDs{}; // Keep track of shaders and their ordering.
+    std::vector<std::shared_ptr<Shader>> m_sceneShaders{}; // Reference the components themselves.
+
+    std::vector<uint32_t> m_texIDs{};
+    std::vector<std::shared_ptr<Texture>> m_sceneTexs{};
+
+    std::vector<uint32_t> m_modelIDs{};
+    std::vector<std::shared_ptr<LoadedModel>> m_sceneModels{};
+
+    void SetModelIDs(std::vector<uint32_t> ids, ResourceManager& rm);
+    void SetShaderIDs(std::vector<uint32_t> ids, ResourceManager& rm);
+
+    void UpdateSceneModels(std::vector<uint32_t> models, ResourceManager& rm);
+    void UpdateSceneShaders(std::vector<uint32_t> shaders, ResourceManager& rm);
+
+    // Load and Unload Scene resource manager
+    void SceneLoad(ResourceManager& rm);
+    void SceneUnload();
 };
 
 #endif

@@ -64,6 +64,6 @@ void CameraSystem::UpdateCamProj(unsigned int WIDTH, unsigned int HEIGHT, std::f
 
 std::shared_ptr<CameraComponent>& CameraSystem::SetCurrent(Entity e)
 {
-	curCam = cameras.GetComponent(e);
+	curCam = cameras.get()->GetComponent(e);
 	return curCam;
 }
