@@ -16,7 +16,7 @@ public:
     const Shader& Use() const;
 
     // Clean-up shader program.
-    ~Shader();
+    void DeleteShaderProgram();
 
     // Shader member functions
     // A single use function that just handles the process of creating a shader programming and sending it to the GPU.

@@ -23,15 +23,17 @@ class Mesh
 {
 public:
     Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && inidces,
-        std::vector<Texture> && textures, unsigned int persistentVBO, float shine);
+        std::vector<std::shared_ptr<Texture>> && textures, unsigned int persistentVBO, float shine);
 
-    void Draw(const Shader &s, const size_t amount = -1); // Add the specific renderer that we are going to use to the param list!
+    void Draw(const Shader &s, const size_t amount = -1) const; // Add the specific renderer that we are going to use to the param list!
+
+    void DeleteMesh();
 
 private:
     unsigned int _VAO, _VBO, _EBO;
     std::vector<Vertex> _vertices;
     std::vector<unsigned int> _indices;
-    std::vector<Texture> _textures;
+    std::vector<std::shared_ptr<Texture>> _textures;
     float _shininess;
 
     void setupMesh(unsigned int persistentVBO);

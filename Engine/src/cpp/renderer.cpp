@@ -16,13 +16,14 @@ void Renderer::InitRenderer(unsigned int WIDTH, unsigned int HEIGHT)
     m_camUBO = std::make_unique<UniformBuffer<CameraData>>(UniformBuffer<CameraData>(1, 3));
 }
 
-// CONSIDER FOR FUTURE USE!
-void Renderer::InitRenderer(unsigned int WIDTH, unsigned int HEIGHT,
-    void (*key_callback)(GLFWwindow*, int, int, int, int),
-    void (*framebuffer_size_callback)(GLFWwindow*, int, int),
-    void (*mouse_callback)(GLFWwindow*, int, int))
+void Renderer::ShutDownRenderer()
 {
+    glDeleteBuffers(1, &m_DynamicVBO);
 
+    m_dirUBO->DeleteUBO();
+    m_camUBO->DeleteUBO();
+    m_pointUBO->DeleteUBO();
+    m_spotUBO->DeleteUBO();
 }
 
 bool Renderer::CreateContext(unsigned int WIDTH, unsigned int HEIGHT)
@@ -74,13 +75,11 @@ void Renderer::DrawInstanced(std::shared_ptr<LoadedModel> model, std::shared_ptr
     glfwPollEvents();
     processInput(m_window.get());
 
-    //const LoadedModel& m = *model.get();
-    //const Shader& s = *shader.get();
-
-    shader.get()->Use();
+    shader->Use();
     UpdateVBO(data);
+    _CrtCheckMemory();
 
-    for (Mesh mesh : model.get()->_meshes) {
+    for (const Mesh& mesh : model->_meshes) {
        mesh.Draw(*shader.get(), data.size());
     }
 }
@@ -105,7 +104,7 @@ void Renderer::Draw(const LoadedModel &m, const Shader &s, const glm::vec3 &posi
     s.SetMatrix4("model", model, true);
 
     glActiveTexture(GL_TEXTURE0);
-    for (Mesh mesh : m._meshes) {
+    for (const Mesh& mesh : m._meshes) {
         mesh.Draw(s);
     }
 }
@@ -115,10 +114,23 @@ void Renderer::UpdateVBO(const std::vector<glm::mat4>& data)
     // A Non-persistent Map Orphaning implementation
     size_t dataSize = data.size() * sizeof(glm::mat4);
     glBindBuffer(GL_ARRAY_BUFFER, m_DynamicVBO);
+
+    GLint bufferSize = 0;
+    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
+
+    if (dataSize > bufferSize) {
+        std::cout << "HEAP_ALLOCATION_ERROR::WRITING_PAST_ALLOCATED_MEMORY_SIZE";
+        __debugbreak();
+    }
+
+    // Be careful here! Flickering can happen if the GL_MAP_UNSYCHRONIZED_BIT flag is set. Causes a race consdition between the CPU
+    // and GPU. CPU gets back to here before the GPU is actually finished rendering.
     auto* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, dataSize,
-        GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+        GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     memcpy(ptr, data.data(), dataSize);
-    glUnmapBuffer(GL_ARRAY_BUFFER);
+    if (glUnmapBuffer(GL_ARRAY_BUFFER) == GL_FALSE) {
+        std::cout << "BUFFER_CORRUPTION";
+    }
 }
 
 void Renderer::UpdateLightUBO(const LightVariant& light, size_t index)
@@ -196,6 +208,11 @@ unsigned int Renderer::GetDynamicVBO()
 void Renderer::ProcessInput()
 {
     processInput(m_window.get());
+}
+
+bool Renderer::CloseWindow()
+{
+    return glfwWindowShouldClose(m_window.get());
 }
 
 

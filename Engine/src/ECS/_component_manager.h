@@ -55,7 +55,7 @@ template <typename Component>
 class ComponentManager
 {
 public:
-	std::shared_ptr<Component>& Create(Entity e) // Create THIS component for entity 'e'.
+	std::shared_ptr<Component> Create(Entity e) // Create THIS component for entity 'e'.
 	{
 		assert(e != INVALID_ENTITY); // Assert 'e' is a valid entity.
 		assert(m_lookup.find(e) == m_lookup.end()); // Assert 'e' does not already contain this component.
@@ -74,7 +74,7 @@ public:
 		return m_components.back();
 	};
 
-	std::shared_ptr<Component>& Create(Entity e, Component&& c)
+	std::shared_ptr<Component> Create(Entity e, Component&& c)
 	{
 		assert(e != INVALID_ENTITY); // Assert 'e' is a valid entity.
 		assert(m_lookup.find(e) == m_lookup.end()); // Assert 'e' does not already contain this component.
@@ -100,7 +100,7 @@ public:
 
 	// Methods for indexing!
 	const size_t GetCount() const { return m_components.size(); };
-	std::shared_ptr<Component>& operator[](size_t index) { return m_components[index]; };
+	std::shared_ptr<Component> operator[](size_t index) { return m_components[index]; };
 
 	// Methods for general container access
 	Entity GetEntity(size_t index) const { return m_entities[index]; };

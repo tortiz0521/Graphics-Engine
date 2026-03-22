@@ -8,13 +8,16 @@ void RunDemoScene(std::shared_ptr<Scene> myScene);
 int main()
 {
 	//AssetRegistry::RegisterPath("standard");
-	std::shared_ptr<Scene> myScene = Engine::InitializeEngine(800, 600, {"test_scene"}, "test_scene", "../../src/").scene;
+	std::shared_ptr<Scene> myScene = Engine::InitializeEngine(800, 600, { "demo_scene" }, "demo_scene", "../../assets/scenes/").scene;
 
-	if (false) {
-
+	if (true) {
+		RunDemoScene(myScene);
+		Engine::SaveAllScenes();
 	}
 
-	Engine::SwitchScenes("test_scene");
+	Engine::ShutDownEngine();
+
+	/*Engine::SwitchScenes("test_scene");
 
 	Engine::SetCurrentCamera(cameras->GetEntity(0));
 
@@ -28,7 +31,7 @@ int main()
 	}
 
 
-	Engine::SaveAllScenes();
+	Engine::SaveAllScenes();*/
 
 
 	return 0;
@@ -109,7 +112,7 @@ void RunDemoScene(std::shared_ptr<Scene> myScene)
 	std::shared_ptr<TransformComponent> sun_tc = myScene->AddComponent<TransformComponent>(sun,
 		TransformComponent(
 			glm::vec3(0.0f),
-			glm::vec3(3.0f),
+			glm::vec3(1.0f),
 			0.0f
 		)
 	);
@@ -117,7 +120,7 @@ void RunDemoScene(std::shared_ptr<Scene> myScene)
 	myScene->AddComponent<RenderComponent>(sun,
 		RenderComponent{ 
 			AssetRegistry::IDFromPath("../../assets/backpack"),
-			AssetRegistry::IDFromPath("standard")
+			AssetRegistry::IDFromPath("standard_standard_")
 		}
 	);
 
@@ -133,26 +136,96 @@ void RunDemoScene(std::shared_ptr<Scene> myScene)
 		Entity p = myScene->AddEntity();
 		planets.emplace_back(myScene->AddComponent<TransformComponent>(p,
 			TransformComponent(
-				glm::vec3(i + (i * 0.5f), 0.0f, i + (i * 0.5f)),
-				glm::vec3(3.0f / i),
+				glm::vec3(5.0f * float(i), 0.0f, 5.0f * float(i)),
+				glm::vec3(0.2f),
 				0.0f
 			))
 		);
 
 		myScene->AddComponent<RenderComponent>(p,
 			RenderComponent{
-				AssetRegistry::IDFromPath("../../assets/backpack"),
-				AssetRegistry::IDFromPath("standard")
+				AssetRegistry::IDFromPath("../../assets/planet"),
+				AssetRegistry::IDFromPath("standard_standard_")
 			}
 		);
 
 		myScene->AddComponent<HierarchyComponent>(p,
-			HierarchyComponent{
-				sun,
-				glm::mat4(1.0f)
-			}
+			HierarchyComponent{ sun, glm::mat4(1.0f) }
 		);
 	}
 
+	std::vector<std::shared_ptr<TransformComponent>> moons{};
+	for (int i = 0; i < planets.size(); i++) {
+		for (int j = 0; j < 5; j++) {
+			Entity m = myScene->AddEntity();
+			moons.emplace_back(myScene->AddComponent<TransformComponent>(m,
+				TransformComponent(
+					glm::vec3(3.0f * std::cos(glm::radians((360.0f / 5.0f) * float(j))), 0.0f, 3.0f * std::sin(glm::radians((360.0f / 5.0f) * float(j)))),
+					glm::vec3(0.2f),
+					0.0f
+				))
+			);
 
+			myScene->AddComponent<RenderComponent>(m,
+				RenderComponent{
+					AssetRegistry::IDFromPath("../../assets/rock"),
+					AssetRegistry::IDFromPath("standard_standard_")
+				}
+			);
+
+			myScene->AddComponent<HierarchyComponent>(m,
+				HierarchyComponent{ hierarchy->GetEntity(i + 1), glm::mat4(1.0f)}
+			);
+		}
+	}
+
+	Entity cam = myScene->AddEntity();
+	std::shared_ptr<CameraComponent> cc = myScene->AddComponent<CameraComponent>(cam,
+		CameraComponent(
+			glm::vec3(0.0f), // Pos
+			glm::vec3(0.0f, 0.0f, -1.0f), // Front
+			glm::vec3(0.0f, 1.0f, 0.0f), // Up
+			0.0f, // Pitch
+			-90.0f, // Yaw (set to -90.0f to ensure the Y-component is not broken)
+			0.1f, // Mouse sense
+			45.0f, // FOV
+			2.5f // Move speed
+		));
+
+	Entity light = myScene->AddEntity();
+	myScene->AddComponent<LightComponent>(light,
+		LightComponent(Point, PointLight{
+			glm::vec4(0.0f),
+			glm::vec4(
+			0.1f, // Constant
+			0.05f, // Linear
+			0.01f, 1.0f), // Quadratic
+			glm::vec4(0.3f),
+			glm::vec4(0.5f),
+			glm::vec4(0.7f)
+			}
+		), Point);
+
+	Engine::SetCurrentCamera(cam);
+
+	while (!Engine::WindowClosed()) {
+		for (int i = 0; i < planets.size(); i++) {
+			planets[i]->translation = glm::vec3(
+				(5.0f * i) * std::cos(glm::radians(float(glfwGetTime()) * (i + 5.0f))),
+				0.0f,
+				(5.0f * i) * std::sin(glm::radians(float(glfwGetTime()) * (i + 5.0f)))
+			);
+		}
+
+		for (int i = 0; i < moons.size(); i++) {
+			int temp = i % 5;
+			moons[i]->translation = glm::vec3(
+				3.0f * std::cos(glm::radians((360.0f / 5.0f) * float(temp) + (glfwGetTime() * 10.0f))),
+				0.0f,
+				3.0f * std::sin(glm::radians((360.0f / 5.0f) * float(temp) + (glfwGetTime() * 10.0f)))
+			);
+		}
+
+		Engine::Render();
+	}
 }

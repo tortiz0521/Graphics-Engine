@@ -13,14 +13,12 @@ namespace BatchingSystem {
 	namespace {
 		std::vector<size_t> m_batchedIndex{};
 
-		void Rebatch() {
+		/*void Rebatch() {
 			m_batchedIndex.clear();
 
 			for (unsigned int i = 0; i < renders.get()->GetCount(); i++) {
 				if (i == 0) {
 					m_batchedIndex.emplace_back(i);
-					if (m_batchedIndex.size() == 0)
-						std::cout << "WTF IS THIS SHIT" << std::endl;
 					continue;
 				}
 				else if ((*renders.get())[i].get()->shader >= (*renders.get())[m_batchedIndex.back()].get()->shader
@@ -30,7 +28,7 @@ namespace BatchingSystem {
 				}
 
 				size_t cur = i;
-				for (unsigned int j = 0; j < m_batchedIndex.size(); j++) {
+				for (unsigned int j = 0; j < m_batchedIndex.size(); j++) { //
 					size_t temp = m_batchedIndex[j];
 					if ((*renders.get())[cur].get()->shader < (*renders.get())[temp].get()->shader
 						&& (*renders.get())[cur].get()->model < (*renders.get())[temp].get()->model) {
@@ -41,6 +39,27 @@ namespace BatchingSystem {
 					if (j == m_batchedIndex.size() - 1) {
 						m_batchedIndex.emplace_back(cur);
 						break;
+					}
+				}
+			}
+		};*/
+
+		void Rebatch()
+		{
+			for (unsigned int i = 0; i < renders->GetCount(); i++) {
+				if (i == 0) {
+					continue;
+				}
+
+				if ((*renders)[i - 1]->shader <= (*renders)[i]->shader
+				&& (*renders)[i - 1]->model <= (*renders)[i]->model) {
+					continue;
+				}
+
+				for (unsigned int j = 0; j < i; j++) {
+					if ((*renders)[j]->shader > (*renders)[i]->shader
+					&& (*renders)[j]->model > (*renders)[i]->model) {
+						renders->MoveItem(i, j);
 					}
 				}
 			}

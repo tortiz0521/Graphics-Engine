@@ -23,11 +23,22 @@ void Scene::Load(ResourceManager& rm, Renderer& r)
 	m_manager.get()->SceneLoad(rm);
 
 	// Load scene components into component managers.
-	cameras.reset(m_Cameras.get());
-	hierarchy.reset(m_Hierarchies.get());
-	lights.reset(m_Lights.get());
-	renders.reset(m_Renders.get());
-	transforms.reset(m_Transforms.get());
+	/*
+		NOTE: If you pass the memory block that you want the shared pointer to look at, you end up creating a new control block.
+		This WILL lead to memory corruption, and the eventual headache of trying to figure out why you're program is struggling
+		to delete all of its memory.
+	*/
+	cameras.reset();
+	hierarchy.reset();
+	lights.reset();
+	renders.reset();
+	transforms.reset();
+
+	cameras = m_Cameras;
+	hierarchy = m_Hierarchies;
+	lights = m_Lights;
+	renders = m_Renders;
+	transforms = m_Transforms;
 
 	if (m_uLight) {
 		LightSystem::SortLights();
@@ -50,7 +61,6 @@ void Scene::Load(ResourceManager& rm, Renderer& r)
 Entity Scene::AddEntity()
 {
 	Entity e = CreateEntity();
-	std::cout << m_entities.size();
 	m_entities.emplace_back(e);
 	return e;
 }

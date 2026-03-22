@@ -20,8 +20,8 @@ namespace Engine
 {
 	namespace {
 		bool engineInit = false;
-		Renderer engine_Renderer{};
-		ResourceManager engine_RM{};
+		std::unique_ptr<Renderer> engine_Renderer;
+		std::unique_ptr<ResourceManager> engine_RM;
 		std::string_view json_folder_path{};
 
 		std::vector<ScenePair> EngineScenes{};
@@ -118,6 +118,8 @@ namespace Engine
 
 	std::shared_ptr<CameraComponent> SetCurrentCamera(Entity e);
 	void Render();
+	bool WindowClosed();
+	void ShutDownEngine();
 };
 
 #endif

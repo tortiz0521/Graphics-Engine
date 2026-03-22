@@ -20,7 +20,8 @@ class Texture
 {
 public:
     Texture();
-    ~Texture();
+
+    void DeleteTexture();
 
     // Generates the texture from the given image data.
     void Generate(unsigned int w, unsigned int h, unsigned int format,

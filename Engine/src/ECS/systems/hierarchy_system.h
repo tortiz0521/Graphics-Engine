@@ -52,8 +52,8 @@ namespace HierarchySystem {
 	}
 
 	// Hierarchy attachment funcs
-	std::shared_ptr<HierarchyComponent>& Attach(Entity entity, Entity parent);
-	std::shared_ptr<HierarchyComponent>& Attach(Entity e, HierarchyComponent&& hc);
+	std::shared_ptr<HierarchyComponent> Attach(Entity entity, Entity parent);
+	std::shared_ptr<HierarchyComponent> Attach(Entity e, HierarchyComponent&& hc);
 	void Detach(Entity e);
 	void Reparent(Entity child, Entity parent);
 

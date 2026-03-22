@@ -11,7 +11,10 @@ ScenePair Engine::InitializeEngine(unsigned int WIDTH, unsigned int HEIGHT, std:
 		return ScenePair("", nullptr);
 	}
 
-	engine_Renderer.InitRenderer(WIDTH, HEIGHT);
+	engine_Renderer = std::make_unique<Renderer>();
+	engine_RM = std::make_unique<ResourceManager>();
+
+	engine_Renderer->InitRenderer(WIDTH, HEIGHT);
 	json_folder_path = jsonPath;
 
 	engineInit = true;
@@ -28,23 +31,38 @@ ScenePair Engine::InitializeEngine(unsigned int WIDTH, unsigned int HEIGHT, std:
 		return ScenePair("", nullptr);
 	}
 
-	engine_Renderer.InitRenderer(WIDTH, HEIGHT);
+	engine_Renderer = std::make_unique<Renderer>();
+	engine_RM = std::make_unique<ResourceManager>();
+
+	engine_Renderer->InitRenderer(WIDTH, HEIGHT);
 	json_folder_path = jsonPath;
 
-	ScenePair temp = ScenePair("StartScene", std::make_shared<Scene>());
+	std::shared_ptr<Scene> scene = std::make_shared<Scene>();
+	ScenePair temp = ScenePair("StartScene", scene);
 	for (std::string_view s : SceneNames) {
 		EngineScenes.emplace_back(Engine::LoadScene_json(s));
 
 		if (std::string(s).compare(std::string(startScene)) == 0) {
-			temp = EngineScenes.back();
-			temp.scene->Load(engine_RM, engine_Renderer);
+			temp.name = s;
+			temp.scene.reset();
+			temp.scene = EngineScenes.back().scene;
+			temp.scene->Load(*engine_RM.get(), *engine_Renderer.get());
 		}
 	}
 
 	engineInit = true;
 	currentScene = temp;
 
-	return temp;
+	return currentScene;
+}
+
+void Engine::ShutDownEngine()
+{
+	engine_RM->ReleaseResources();
+	engine_Renderer->ShutDownRenderer();
+
+	engine_RM.release();
+	engine_Renderer.release();
 }
 
 ScenePair Engine::GetCurrentScene()
@@ -64,7 +82,7 @@ ScenePair Engine::SwitchScenes(std::string_view sceneName)
 
 			ScenePair temp = EngineScenes[i];
 
-			temp.scene.get()->Load(engine_RM, engine_Renderer);
+			temp.scene.get()->Load(*engine_RM.get(), *engine_Renderer.get());
 			currentScene = temp;
 
 			return currentScene;
@@ -76,7 +94,7 @@ ScenePair Engine::SwitchScenes(std::string_view sceneName)
 
 ScenePair Engine::LoadScene_json(std::string_view sceneName)
 {
-	Scene newScene{};
+	std::shared_ptr<Scene> newScene = std::make_shared<Scene>();
 
 	// First, load manifest data.
 	ManifestConfig manifest{};
@@ -93,7 +111,7 @@ ScenePair Engine::LoadScene_json(std::string_view sceneName)
 
 		std::cout << std::string(smc.vertex_path).c_str() << std::endl;
 		shaderIDs.emplace_back(
-			Engine::engine_RM.LoadShader(std::string(smc.vertex_path).c_str(), std::string(smc.fragment_path).c_str(),
+			Engine::engine_RM->LoadShader(std::string(smc.vertex_path).c_str(), std::string(smc.fragment_path).c_str(),
 				name, smc.geo_path.has_value() ? std::string(smc.geo_path.value()).c_str() : nullptr)
 		);
 	}
@@ -102,7 +120,7 @@ ScenePair Engine::LoadScene_json(std::string_view sceneName)
 	for (std::string_view mm : manifest.model_manifest) {
 		AssetRegistry::RegisterPath(mm);
 		modelIDs.emplace_back(
-			Engine::engine_RM.LoadModel(mm, Engine::engine_Renderer.GetDynamicVBO())
+			Engine::engine_RM->LoadModel(mm, Engine::engine_Renderer->GetDynamicVBO())
 		);
 	}
 
@@ -110,47 +128,46 @@ ScenePair Engine::LoadScene_json(std::string_view sceneName)
 	for (TextureManifestConfig tm : manifest.texture_manifest) {
 		AssetRegistry::RegisterPath(tm.tex_path);
 		textureIDs.emplace_back(
-			Engine::engine_RM.LoadTexture_ID(std::string(tm.tex_path), tm.type)
+			Engine::engine_RM->LoadTexture_ID(std::string(tm.tex_path), tm.type)
 		);
 	}
 
-	newScene.m_manager.get()->SetShaderIDs(shaderIDs, Engine::engine_RM);
-	newScene.m_manager.get()->SetModelIDs(modelIDs, Engine::engine_RM);
+	newScene->m_manager.get()->SetShaderIDs(shaderIDs, *Engine::engine_RM.get());
+	newScene->m_manager.get()->SetModelIDs(modelIDs, *Engine::engine_RM.get());
 
 	// Next, load entity data
 	SceneEntities entities{};
 	if (auto ec = ParseEntities(path + ".json", entities) != glz::error_code::none) {
 		std::cout << "PARSE_ERROR::ENTITY::AT_SCENE::" << sceneName << "::" << ec << std::endl;
-		return ScenePair("", nullptr);
+		return ScenePair(std::string(sceneName), newScene);
 	}
 
 	for (EntityConfig ec : entities.entities) {
-		Entity e = newScene.AddEntity();
+		Entity e = newScene->AddEntity();
 
 		if (ec.camera.has_value()) {
-			newScene.AddComponent<CameraComponent>(e, std::move(ec.camera.value()));
+			newScene->AddComponent<CameraComponent>(e, std::move(ec.camera.value()));
 		}
 
 		if (ec.hierarchy.has_value()) {
-			newScene.AddComponent<HierarchyComponent>(e, std::move(ec.hierarchy.value()));
+			newScene->AddComponent<HierarchyComponent>(e, std::move(ec.hierarchy.value()));
 		}
 
 		if (ec.light.has_value()) {
 			LightType t = ec.light.value().type;
-			newScene.AddComponent<LightComponent>(e, std::move(ec.light.value()), t);
+			newScene->AddComponent<LightComponent>(e, std::move(ec.light.value()), t);
 		}
 
 		if (ec.render.has_value()) {
-			newScene.AddComponent<RenderComponent>(e, std::move(ec.render.value()));
+			newScene->AddComponent<RenderComponent>(e, std::move(ec.render.value()));
 		}
 
 		if (ec.transform.has_value()) {
-			newScene.AddComponent<TransformComponent>(e, std::move(ec.transform.value()));
+			newScene->AddComponent<TransformComponent>(e, std::move(ec.transform.value()));
 		}
 	}
 
-	std::shared_ptr<Scene> temp = std::make_shared<Scene>(std::move(newScene));
-	return ScenePair(std::string(sceneName), temp);
+	return ScenePair(std::string(sceneName), newScene);
 }
 
 void Engine::SaveScene(const std::string& name)
@@ -186,13 +203,19 @@ std::shared_ptr<CameraComponent> Engine::SetCurrentCamera(Entity e)
 		return nullptr;
 	}
 
-	currentScene.scene.get()->SetCamUBO(800, 600, Engine::engine_Renderer);
+	currentScene.scene.get()->SetCamUBO(800, 600, *Engine::engine_Renderer.get());
 	return temp;
 }
 
 void Engine::Render()
 {
 	if (currentScene.scene) {
-		currentScene.scene->RenderScene(Engine::engine_Renderer);
+		currentScene.scene->RenderScene(*Engine::engine_Renderer.get());
+		_CrtCheckMemory();
 	}
+}
+
+bool Engine::WindowClosed()
+{
+	return engine_Renderer->CloseWindow();
 }

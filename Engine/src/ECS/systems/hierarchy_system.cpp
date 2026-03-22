@@ -6,18 +6,18 @@
 // updated world transform of the parent. This will give us the child's world space coordinates.
 
 // Attach a new entity to the hierarchy system.
-std::shared_ptr<HierarchyComponent>& HierarchySystem::Attach(Entity entity, Entity parent)
+std::shared_ptr<HierarchyComponent> HierarchySystem::Attach(Entity entity, Entity parent)
 {
-	std::shared_ptr<HierarchyComponent>& hc = hierarchy.get()->Create(entity);
+	std::shared_ptr<HierarchyComponent> hc = hierarchy.get()->Create(entity);
 	hc.get()->parent = parent;
 
 	containerUpdate(hc.get());
 	return hc;
 }
 
-std::shared_ptr<HierarchyComponent>& HierarchySystem::Attach(Entity e, HierarchyComponent&& comp)
+std::shared_ptr<HierarchyComponent> HierarchySystem::Attach(Entity e, HierarchyComponent&& comp)
 {
-	std::shared_ptr<HierarchyComponent>& hc = hierarchy.get()->Create(e, std::move(comp));
+	std::shared_ptr<HierarchyComponent> hc = hierarchy.get()->Create(e, std::move(comp));
 	containerUpdate(hc.get());
 	return hc;
 }
@@ -91,8 +91,13 @@ void HierarchySystem::UpdateHierarchySystem()
 		(*transforms.get())[0].get()->dirty = false;
 	}
 
-	glm::mat4 prev = (*transforms.get())[0].get()->worldTransform;
+	uint32_t curParent = INVALID_ENTITY;
+	glm::mat4 prev{};
 	for (uint32_t i = 1; i < transforms.get()->GetCount(); i++) {
+		if ((*hierarchy.get())[i]->parent != curParent) {
+			curParent = (*hierarchy.get())[i]->parent;
+		}
+
 		if ((*transforms.get())[i].get()->dirty) {
 			(*transforms.get())[i].get()->SetTransform();
 			(*transforms.get())[i].get()->dirty = false;
@@ -103,7 +108,8 @@ void HierarchySystem::UpdateHierarchySystem()
 			continue;
 		}
 		
-		(*transforms.get())[i].get()->worldTransform = prev * (*transforms.get())[i].get()->localTransform;
+		(*transforms.get())[i].get()->worldTransform = 
+			(*transforms.get())[transforms->GetIndex(curParent)].get()->worldTransform * (*transforms.get())[i].get()->localTransform;
 
 		lc = lights.get()->GetComponent(transforms.get()->GetEntity(i));
 		if (lc) {
@@ -126,7 +132,5 @@ void HierarchySystem::UpdateHierarchySystem()
 					);
 			}
 		}
-
-		prev = (*transforms.get())[i].get()->worldTransform;
 	}
 }

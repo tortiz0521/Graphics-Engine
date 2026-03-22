@@ -62,6 +62,11 @@ public:
 
     size_t size() { return m_curSize; };
 
+    void DeleteUBO() 
+    {
+        glDeleteBuffers(1, &m_UBO);
+    };
+
 private:
     unsigned int m_UBO;
     size_t m_bufferMax, m_curSize;

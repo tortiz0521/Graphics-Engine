@@ -7,10 +7,11 @@ const Shader& Shader::Use() const
     return *this;
 }
 
-Shader::~Shader()
+void Shader::DeleteShaderProgram()
 {
-    //glDeleteProgram(this->_ID);
+    glDeleteProgram(_ID);
 }
+
 
 void Shader::Compile(const char *vSource, const char *fSource, const char *gSource)
 {

@@ -3,6 +3,21 @@
 std::unordered_map<std::string, uint32_t> AssetRegistry::path_ID;
 std::unordered_map<uint32_t, std::string> AssetRegistry::ID_path;
 
+void ResourceManager::ReleaseResources()
+{
+    for (std::unordered_map<uint32_t, std::shared_ptr<Shader>>::iterator it = m_shaders.begin(); it != m_shaders.end(); ++it) {
+        it->second->DeleteShaderProgram();
+    }
+
+    for (std::unordered_map<uint32_t, std::shared_ptr<Texture>>::iterator it = m_textures.begin(); it != m_textures.end(); ++it) {
+        it->second->DeleteTexture();
+    }
+
+    for (std::unordered_map<uint32_t, std::shared_ptr<LoadedModel>>::iterator it = m_models.begin(); it != m_models.end(); ++it) {
+        it->second->DeleteModel();
+    }
+}
+
 const uint32_t ResourceManager::LoadShader(const char *vertex, const char *fragment, std::string_view name, const char * geometry)
 {
     uint32_t ID = AssetRegistry::RegisterPath(name);
@@ -45,23 +60,23 @@ const uint32_t ResourceManager::LoadShader(const char *vertex, const char *fragm
     if (geometry != nullptr)
         gCode = gString.c_str();
 
-    Shader s = Shader();
-    s.Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
+    std::shared_ptr<Shader> s = std::make_shared<Shader>(Shader());
+    s->Compile(vCode, fCode, gCode == nullptr ? nullptr : gCode);
 
     // Hash ID from file name + place new shader in container.
-    m_shaders[ID] = std::make_shared<Shader>(s);
+    m_shaders[ID] = s;
     return ID;
 
 }
 
-const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
+std::shared_ptr<Texture> ResourceManager::LoadTexture(std::string p, TextureType type)
 {
     uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(p));
     if (m_textures[ID]) {
-        return Texture();
+        return nullptr;
     }
 
-    Texture t = Texture();
+    std::shared_ptr<Texture> t = std::make_shared<Texture>(Texture());
 
     int width, height, nrComp;
         
@@ -75,7 +90,7 @@ const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
         else if (nrComp == 4)
             format = GL_RGBA;
 
-        t.Generate(width, height, format, data, type, p); // Generate Texture
+        t->Generate(width, height, format, data, type, p); // Generate Texture
     }
     else {
         std::cout << "Here is the error: " << stbi_failure_reason() << '\n';
@@ -85,8 +100,8 @@ const Texture& ResourceManager::LoadTexture(std::string p, TextureType type)
     stbi_image_free(data);
 
     // Hash ID fron file name + place new Texture in container.
-    m_textures[ID] = std::make_shared<Texture>(t);
-    return *m_textures[ID];
+    m_textures[ID] = t;
+    return m_textures[ID];
 }
 
 const uint32_t ResourceManager::LoadTexture_ID(std::string directory, TextureType type)
@@ -96,7 +111,7 @@ const uint32_t ResourceManager::LoadTexture_ID(std::string directory, TextureTyp
         return ID;
     }
 
-    Texture t = Texture();
+    std::shared_ptr<Texture> t = std::make_shared<Texture>(Texture());
 
     int width, height, nrComp;
 
@@ -110,7 +125,7 @@ const uint32_t ResourceManager::LoadTexture_ID(std::string directory, TextureTyp
         else if (nrComp == 4)
             format = GL_RGBA;
 
-        t.Generate(width, height, format, data, type, directory); // Generate Texture
+        t->Generate(width, height, format, data, type, directory); // Generate Texture
     }
     else {
         std::cout << "Here is the error: " << stbi_failure_reason() << '\n';
@@ -120,7 +135,7 @@ const uint32_t ResourceManager::LoadTexture_ID(std::string directory, TextureTyp
     stbi_image_free(data);
 
     // Hash ID fron file name + place new Texture in container.
-    m_textures[ID] = std::make_shared<Texture>(t);
+    m_textures[ID] = t;
     return ID;
 }
 

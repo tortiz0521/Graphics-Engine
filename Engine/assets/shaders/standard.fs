@@ -107,7 +107,7 @@ void main()
 		result += CalcDirLight(dLights[i], n, viewDir);
 	}
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 1; i++) {
 		result += CalcPointLight(pLights[i], n, viewDir);
 	}
 
@@ -161,9 +161,12 @@ vec3 CalcPointLight(PointLight light, vec3 n, vec3 viewDir)
 	float diff = max(0.0, dot(n, lightDir));
 	vec3 d = light.diffuse.xyz * diff * vec3(texture(mat.texture_diffuse1, texCoord));
 
-	vec3 reflectDir = normalize(reflect(-lightDir, n));
-	float spec = pow(max(0.0, dot(viewDir, reflectDir)), mat.shininess);
-	vec3 s = light.specular.xyz * spec * vec3(texture(mat.texture_specular1, texCoord));
+	vec3 s = vec3(0.0);
+	if (diff > 0.0) {
+		vec3 reflectDir = reflect(-lightDir, n);
+		float spec = pow(max(0.0, dot(viewDir, reflectDir)), mat.shininess);
+		s = light.specular.xyz * spec * vec3(texture(mat.texture_specular1, texCoord));
+	}
 
 	return attenuation * (a + d + s);
 }
@@ -185,9 +188,12 @@ vec3 CalcSpotLight(SpotLight light, vec3 n, vec3 viewDir)
 		float diff = max(0.0, dot(n, lightDir));
 		vec3 d = light.diffuse.xyz * diff * vec3(texture(mat.texture_diffuse1, texCoord));
 
-		vec3 reflectDir = reflect(n, -lightDir);
-		float spec = pow(max(0.0, dot(viewDir, lightDir)), mat.shininess);
-		vec3 s = light.specular.xyz * spec * vec3(texture(mat.texture_specular1, texCoord));
+		vec3 s = vec3(0.0);
+		if (diff > 0.0) {
+			vec3 reflectDir = reflect(n, -lightDir);
+			float spec = pow(max(0.0, dot(viewDir, lightDir)), mat.shininess);
+			s = light.specular.xyz * spec * vec3(texture(mat.texture_specular1, texCoord));
+		}
 
 																// EPSILON
 		float intensity = clamp((theta - light.outerCutOff) / (light.cutOff - light.outerCutOff), 0.0, 1.0);

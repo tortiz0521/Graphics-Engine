@@ -59,7 +59,7 @@ bool Texture::operator==(const Texture &o)
     return strcmp(this->_path, o._path) ? true : false;
 }
 
-Texture::~Texture()
+void Texture::DeleteTexture()
 {
-    //glDeleteTextures(1, &this->_ID);
+    glDeleteTextures(1, &_ID);
 }

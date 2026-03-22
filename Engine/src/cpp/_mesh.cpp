@@ -2,7 +2,7 @@
 #include <iostream>
 
 Mesh::Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && indices,
-    std::vector<Texture> && textures, unsigned int persistentVBO, float shine)
+    std::vector<std::shared_ptr<Texture>> && textures, unsigned int persistentVBO, float shine)
 {
     glGenVertexArrays(1, &_VAO);
     glGenBuffers(1, &_VBO);
@@ -16,14 +16,21 @@ Mesh::Mesh(std::vector<Vertex> && vertices, std::vector<unsigned int> && indices
     setupMesh(persistentVBO);
 }
 
-void Mesh::Draw(const Shader &s, const size_t amount)
+void Mesh::DeleteMesh()
+{
+    glDeleteVertexArrays(1, &_VAO);
+    glDeleteBuffers(1, &_VBO);
+    glDeleteBuffers(1, &_EBO);
+}
+
+void Mesh::Draw(const Shader &s, const size_t amount) const
 {
     unsigned int diffNum = 1, specNum = 1, normNum = 1;
     for (unsigned int i = 0; i < this->_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         
         std::string num;
-        const std::string name = _textures[i].GetType();
+        const std::string name = _textures[i]->GetType();
         if (name == "texture_diffuse")
             num = std::to_string(diffNum++);
         else if (name == "texture_normal")
@@ -32,7 +39,7 @@ void Mesh::Draw(const Shader &s, const size_t amount)
             num = std::to_string(specNum++);
 
         s.SetInteger(("mat." + name + num).c_str(), i, true);
-        _textures[i].Bind();
+        _textures[i]->Bind();
     }
 
     s.SetFloat("mat.shininess", _shininess, true);

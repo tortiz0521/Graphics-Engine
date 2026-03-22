@@ -64,6 +64,12 @@ struct AssetRegistry
 struct LoadedModel {
     std::vector<Mesh> _meshes;
     std::string _name;
+
+    void DeleteModel() {
+        for (Mesh m : _meshes) {
+            m.DeleteMesh();
+        }
+    }
 };
 
 class ResourceManager
@@ -73,7 +79,7 @@ public:
 
     // Load shaders/textures from their files
     const uint32_t LoadShader(const char* vertex, const char* fragment, std::string_view name, const char* geometry = nullptr);
-    const Texture& LoadTexture(std::string directory, TextureType type);
+    std::shared_ptr<Texture> LoadTexture(std::string directory, TextureType type);
     const uint32_t LoadTexture_ID(std::string directory, TextureType type);
     const uint32_t LoadModel(std::string_view path, unsigned int persistentVBO);
 
@@ -86,6 +92,8 @@ public:
     std::shared_ptr<Texture> GetTexture(std::string_view path);
     std::shared_ptr<LoadedModel> GetModel(std::string_view path);
 
+
+    void ReleaseResources();
 private:
     /*  
         IMPORTANT NOTE: Each node contains meshes that exist in the scene to allow for reusability!
@@ -96,7 +104,7 @@ private:
     void loadModel(std::string_view path, unsigned int persistentVBO);
     void processNode(aiNode *node, const aiScene *scene, LoadedModel& m, unsigned int persistentVBO);
     Mesh processMesh(aiMesh *mesh, const aiScene *scene, LoadedModel& m, unsigned int persistentVBO);
-    std::vector<Texture> processTextures(
+    std::vector<std::shared_ptr<Texture>> processTextures(
         aiMaterial *mat, aiTextureType aiType, TextureType type, LoadedModel& m
     );
 

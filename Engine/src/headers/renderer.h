@@ -18,8 +18,9 @@
 struct GLFWwindowDeleter {
     void operator()(GLFWwindow* window)
     {
-        if (window) {
+        if (window && glfwGetCurrentContext()) {
             glfwDestroyWindow(window);
+            //glfwTerminate();
         }
     }
 };
@@ -132,11 +133,6 @@ public:
 
     void DrawInstanced(std::shared_ptr<LoadedModel> model, std::shared_ptr<Shader> shader, const std::vector<glm::mat4>& data);
     void InitRenderer(unsigned int WIDTH, unsigned int HEIGHT); 
-    void InitRenderer(unsigned int WIDTH, unsigned int HEIGHT,
-        void (*key_callback)(GLFWwindow*, int, int, int, int),
-        void (*framebuffer_size_callback)(GLFWwindow*, int, int),
-        void (*mouse_callback)(GLFWwindow*, int, int));
-
 
     void UpdateLightUBO(const LightVariant& light, size_t index);
     void UpdateCamUBO(const glm::mat4& camView);
@@ -147,6 +143,9 @@ public:
     void SwapBuffers();
     void ProcessInput();
     unsigned int GetDynamicVBO();
+    bool CloseWindow();
+
+    void ShutDownRenderer();
 
 private:
     std::unique_ptr<GLFWwindow, GLFWwindowDeleter> m_window{};

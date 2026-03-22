@@ -3,7 +3,7 @@
 // Process an entire model!
 void ResourceManager::loadModel(std::string_view path, unsigned int persistentVBO)
 {
-    LoadedModel m = LoadedModel();
+    std::shared_ptr<LoadedModel> m = std::make_shared<LoadedModel>();
 
     std::string temp(path);
     Assimp::Importer importer;
@@ -16,10 +16,10 @@ void ResourceManager::loadModel(std::string_view path, unsigned int persistentVB
         return;
     }
 
-    m._name = temp;
-    processNode(scene->mRootNode, scene, m, persistentVBO);
+    m->_name = temp;
+    processNode(scene->mRootNode, scene, *m.get(), persistentVBO);
     uint32_t ID = static_cast<uint32_t>(std::hash<std::string_view>{}(temp));
-    m_models[ID] = std::make_shared<LoadedModel>(m);
+    m_models[ID] = m;
 }
 
 void ResourceManager::processNode(
@@ -38,7 +38,7 @@ void ResourceManager::processNode(
 Mesh ResourceManager::processMesh(
     aiMesh *mesh, const aiScene *scene, LoadedModel &m, unsigned int persistentVBO) 
 {
-    std::vector<Texture> texs{};
+    std::vector<std::shared_ptr<Texture>> texs{};
     std::vector<unsigned int> indices{};
     std::vector<Vertex> verts{};
 
@@ -64,7 +64,7 @@ Mesh ResourceManager::processMesh(
         aiMaterial *mat = scene->mMaterials[mesh->mMaterialIndex];
 
         // Load the diffuse maps from the scenes material
-        std::vector<Texture> maps = processTextures(
+        std::vector<std::shared_ptr<Texture>> maps = processTextures(
             mat, aiTextureType_DIFFUSE, DIFFUSE, m
         );
         texs.insert(texs.end(), maps.begin(), maps.end());
@@ -88,10 +88,10 @@ Mesh ResourceManager::processMesh(
     return Mesh(std::move(verts), std::move(indices), std::move(texs), persistentVBO, shininess);
 }
 
-std::vector<Texture> ResourceManager::processTextures(
+std::vector<std::shared_ptr<Texture>> ResourceManager::processTextures(
     aiMaterial *mat, aiTextureType aiType, TextureType type, LoadedModel &m)
 {
-    std::vector<Texture> textures;
+    std::vector<std::shared_ptr<Texture>> textures;
     for (unsigned int i = 0; i < mat->GetTextureCount(aiType); i++) {
         aiString s;
         mat->GetTexture(aiType, i, &s);
@@ -101,10 +101,10 @@ std::vector<Texture> ResourceManager::processTextures(
         auto tex = m_textures.find(ID);
 
         if (tex == m_textures.end()) {
-            textures.push_back(LoadTexture(path, type));
+            textures.emplace_back(LoadTexture(path, type));
         }
         else {
-            textures.push_back(*tex->second.get());
+            textures.emplace_back(tex->second);
         }
     }
 
