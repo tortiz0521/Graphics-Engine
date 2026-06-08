@@ -63,9 +63,9 @@ void HierarchySystem::ResetHierarchy()
 void HierarchySystem::UpdateHierarchySystem()
 {
 	std::shared_ptr<LightComponent> lc = lights.get()->GetComponent(transforms.get()->GetEntity(0));
-	if ((*transforms.get())[0].get()->dirty) {
-		(*transforms.get())[0].get()->SetTransform();
-		(*transforms.get())[0].get()->worldTransform = (*transforms.get())[0].get()->localTransform;
+	if ((*transforms)[0].get()->dirty) {
+		(*transforms)[0].get()->SetTransform();
+		(*transforms)[0].get()->worldTransform = (*transforms)[0].get()->localTransform;
 
 		if (lc) {
 			switch (lc->data.value.index()) {
@@ -94,40 +94,40 @@ void HierarchySystem::UpdateHierarchySystem()
 	uint32_t curParent = INVALID_ENTITY;
 	glm::mat4 prev{};
 	for (uint32_t i = 1; i < transforms.get()->GetCount(); i++) {
-		if ((*hierarchy.get())[i]->parent != curParent) {
-			curParent = (*hierarchy.get())[i]->parent;
+		if ((*hierarchy)[i]->parent != curParent) {
+			curParent = (*hierarchy)[i]->parent;
 		}
 
-		if ((*transforms.get())[i].get()->dirty) {
-			(*transforms.get())[i].get()->SetTransform();
-			(*transforms.get())[i].get()->dirty = false;
+		if ((*transforms)[i].get()->dirty) {
+			(*transforms)[i].get()->SetTransform();
+			(*transforms)[i].get()->dirty = false;
 		}
 
-		if ((*hierarchy.get())[i].get()->parent == INVALID_ENTITY) {
-			(*transforms.get())[i].get()->worldTransform = (*transforms.get())[i].get()->localTransform;
+		if ((*hierarchy)[i].get()->parent == INVALID_ENTITY) {
+			(*transforms)[i].get()->worldTransform = (*transforms)[i].get()->localTransform;
 			continue;
 		}
 		
-		(*transforms.get())[i].get()->worldTransform = 
-			(*transforms.get())[transforms->GetIndex(curParent)].get()->worldTransform * (*transforms.get())[i].get()->localTransform;
+		(*transforms)[i].get()->worldTransform = 
+			(*transforms)[transforms->GetIndex(curParent)].get()->worldTransform * (*transforms)[i].get()->localTransform;
 
-		lc = lights.get()->GetComponent(transforms.get()->GetEntity(i));
+		lc = lights->GetComponent(transforms->GetEntity(i));
 		if (lc) {
 			switch (lc->data.value.index()) {
 				case 0: break;
 				case 1:
 					std::get<PointLight>(lc->data.value).pos = glm::vec4(
-						(*transforms.get())[0].get()->worldTransform[0][3],
-						(*transforms.get())[0].get()->worldTransform[1][3],
-						(*transforms.get())[0].get()->worldTransform[2][3],
+						(*transforms)[0].get()->worldTransform[0][3],
+						(*transforms)[0].get()->worldTransform[1][3],
+						(*transforms)[0].get()->worldTransform[2][3],
 						1.0f
 					);
 					break;
 				case 2:
 					std::get<SpotLight>(lc->data.value).pos = glm::vec4(
-						(*transforms.get())[0].get()->worldTransform[0][3],
-						(*transforms.get())[0].get()->worldTransform[1][3],
-						(*transforms.get())[0].get()->worldTransform[2][3],
+						(*transforms)[0].get()->worldTransform[0][3],
+						(*transforms)[0].get()->worldTransform[1][3],
+						(*transforms)[0].get()->worldTransform[2][3],
 						1.0f
 					);
 			}

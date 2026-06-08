@@ -19,8 +19,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -0, 0, 0 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 1.744284, 0, 0.97850555 ],
+        "scale": [ 0.1, 0.1, 0.1 ],
         "rotation": 0
       }
     },
@@ -31,8 +31,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -3.9924476, 0, 3.0100436 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 3.1061523, 0, 2.5202813 ],
+        "scale": [ 0.1, 0.1, 0.1 ],
         "rotation": 0
       }
     },
@@ -43,8 +43,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -9.73647, 0, 2.280601 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 3.9506283, 0, 4.5158095 ],
+        "scale": [ 0.1, 0.1, 0.1 ],
         "rotation": 0
       }
     },
@@ -55,8 +55,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -14.741707, 0, -2.7716556 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 4.1701064, 0, 6.827167 ],
+        "scale": [ 0.1, 0.1, 0.1 ],
         "rotation": 0
       }
     },
@@ -67,8 +67,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -16.486643, 0, -11.322127 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 3.689877, 0, 9.294343 ],
+        "scale": [ 0.1, 0.1, 0.1 ],
         "rotation": 0
       }
     },
@@ -79,8 +79,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -1.5759615, 0, -2.5527132 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -7.073029, 0, -2.4944422 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -91,8 +91,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ 1.940776, 0, -2.2876601 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -5.446948, 0, -5.1556525 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -103,8 +103,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ 2.7754266, 0, 1.1388619 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -2.8790407, 0, -6.925397 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -115,8 +115,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -0.22546817, 0, 2.9915154 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 0.18667904, 0, -7.4976764 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -127,8 +127,128 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -2.9147737, 0, 0.70999604 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 3.2201202, 0, -6.7735386 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 2 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 5.696773, 0, -4.878194 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 2 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 7.1884017, 0, -2.1393647 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 2 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 7.4370894, 0, 0.9693803 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 2 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 6.399836, 0, 3.9105105 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 2 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 4.255994, 0, 6.1754766 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 2 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 1.3762485, 0, 7.3726482 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 2 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -1.7414615, 0, 7.2950196 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 2 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -4.558057, 0, 5.9560156 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 2 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -6.586522, 0, 3.5871613 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 2 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -7.4761176, 0, 0.5980543 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -139,8 +259,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -1.5759609, 0, -2.5527136 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -7.073024, 0, -2.4944606 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -151,8 +271,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ 1.9407763, 0, -2.2876596 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -5.446939, 0, -5.1556616 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -163,8 +283,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ 2.7754266, 0, 1.1388624 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -2.879029, 0, -6.9254017 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -175,8 +295,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -0.22546864, 0, 2.9915154 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 0.18669178, 0, -7.497676 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -187,8 +307,128 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -2.9147737, 0, 0.7099956 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 3.2201319, 0, -6.7735333 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 3 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 5.6967816, 0, -4.8781843 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 3 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 7.1884055, 0, -2.1393526 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 3 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 7.437088, 0, 0.96939296 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 3 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 6.39983, 0, 3.9105215 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 3 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 4.255984, 0, 6.1754837 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 3 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 1.3762367, 0, 7.37265 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 3 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -1.7414732, 0, 7.295017 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 3 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -4.5580664, 0, 5.956008 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 3 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -6.586528, 0, 3.5871508 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 3 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -7.4761186, 0, 0.5980423 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -199,8 +439,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -1.5759604, 0, -2.5527139 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -7.0730195, 0, -2.494472 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -211,8 +451,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ 1.9407768, 0, -2.2876594 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -5.446931, 0, -5.1556706 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -223,8 +463,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ 2.7754264, 0, 1.1388628 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -2.8790178, 0, -6.9254065 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -235,8 +475,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -0.22546911, 0, 2.9915154 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 0.18670377, 0, -7.497676 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -247,8 +487,128 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -2.914774, 0, 0.70999515 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 3.2201426, 0, -6.773528 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 4 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 5.6967893, 0, -4.8781757 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 4 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 7.188409, 0, -2.1393416 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 4 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 7.4370866, 0, 0.9694048 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 4 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 6.3998237, 0, 3.9105318 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 4 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 4.255974, 0, 6.175491 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 4 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 1.3762249, 0, 7.3726525 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 4 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -1.7414848, 0, 7.295014 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 4 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -4.558076, 0, 5.956001 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 4 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -6.5865335, 0, 3.5871403 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 4 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -7.4761195, 0, 0.5980303 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -259,8 +619,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -1.57596, 0, -2.552714 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -7.0730157, 0, -2.4944832 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -271,8 +631,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ 1.9407772, 0, -2.2876592 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -5.4469233, 0, -5.155679 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -283,8 +643,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ 2.7754261, 0, 1.1388633 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -2.8790069, 0, -6.9254107 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -295,8 +655,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -0.22546957, 0, 2.9915152 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 0.18671577, 0, -7.4976754 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -307,8 +667,128 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -2.914774, 0, 0.7099947 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 3.2201533, 0, -6.7735233 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 5 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 5.696797, 0, -4.8781667 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 5 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 7.188412, 0, -2.1393301 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 5 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 7.4370847, 0, 0.969416 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 5 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 6.3998175, 0, 3.9105413 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 5 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 4.2559643, 0, 6.175497 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 5 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 1.3762131, 0, 7.372655 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 5 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -1.7414964, 0, 7.2950115 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 5 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -4.5580854, 0, 5.9559937 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 5 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -6.5865393, 0, 3.5871298 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 5 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -7.4761205, 0, 0.5980184 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -319,8 +799,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -1.5759597, 0, -2.5527143 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -7.073012, 0, -2.4944947 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -331,8 +811,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ 1.9407775, 0, -2.2876587 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -5.4469147, 0, -5.155688 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -343,8 +823,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ 2.775426, 0, 1.1388637 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ -2.8789964, 0, -6.9254155 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -355,8 +835,8 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -0.2254701, 0, 2.9915152 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 0.18672702, 0, -7.497675 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
@@ -367,19 +847,139 @@
         "shader": "standard_standard_"
       },
       "transform": {
-        "translation": [ -2.9147742, 0, 0.7099942 ],
-        "scale": [ 0.2, 0.2, 0.2 ],
+        "translation": [ 3.2201636, 0, -6.773518 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 6 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 5.6968045, 0, -4.8781576 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 6 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 7.1884155, 0, -2.1393187 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 6 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 7.4370832, 0, 0.96942866 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 6 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 6.3998113, 0, 3.910552 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 6 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 4.2559543, 0, 6.175504 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 6 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ 1.3762006, 0, 7.372657 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 6 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -1.7415088, 0, 7.2950087 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 6 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -4.5580955, 0, 5.955986 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 6 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -6.5865455, 0, 3.5871193 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "rotation": 0
+      }
+    },
+    {
+      "hierarchy": { "parent": 6 },
+      "render": {
+        "model": "../../assets/rock",
+        "shader": "standard_standard_"
+      },
+      "transform": {
+        "translation": [ -7.4761214, 0, 0.5980064 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
         "rotation": 0
       }
     },
     {
       "camera": {
-        "pos": [ -0.7605492, 0, -17.769794 ],
-        "front": [ -0.32314146, -0.12186936, 0.9384709 ],
+        "pos": [ -3.9603193, 0, 2.72967 ],
+        "front": [ 0.97422177, -0.017452408, -0.22491682 ],
         "up": [ 0, 1, 0 ],
         "moveSpeed": 2.5,
-        "pitch": -7,
-        "yaw": -251,
+        "pitch": -1,
+        "yaw": -13,
         "mouseSense": 0.1,
         "fov": 45
       }

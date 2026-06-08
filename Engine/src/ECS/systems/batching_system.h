@@ -4,64 +4,57 @@
 #include "../components/render_component.h"
 #include "../components/transform_component.h"
 #include "../components/light_component.h"
-#include "../../headers/resource_manager.h"
+#include "../../resource/resource_manager.h"
 
 #include <memory>
 #include <functional>
 
 namespace BatchingSystem {
 	namespace {
-		std::vector<size_t> m_batchedIndex{};
+		/* Compares if a < b for shader, then model. Returns bool */
+		bool lessComparison(const RenderComponent* a, const RenderComponent* b) {
+			if (a->shader != b->shader)
+				return a->shader < b->shader;
 
-		/*void Rebatch() {
-			m_batchedIndex.clear();
+			return a->model < b->model;
+		}
 
-			for (unsigned int i = 0; i < renders.get()->GetCount(); i++) {
-				if (i == 0) {
-					m_batchedIndex.emplace_back(i);
-					continue;
-				}
-				else if ((*renders.get())[i].get()->shader >= (*renders.get())[m_batchedIndex.back()].get()->shader
-					&& (*renders.get())[i].get()->model >= (*renders.get())[m_batchedIndex.back()].get()->model) {
-					m_batchedIndex.emplace_back(i);
-					continue;
-				}
-
-				size_t cur = i;
-				for (unsigned int j = 0; j < m_batchedIndex.size(); j++) { //
-					size_t temp = m_batchedIndex[j];
-					if ((*renders.get())[cur].get()->shader < (*renders.get())[temp].get()->shader
-						&& (*renders.get())[cur].get()->model < (*renders.get())[temp].get()->model) {
-						m_batchedIndex[j] = cur;
-						cur = temp;
-					}
-
-					if (j == m_batchedIndex.size() - 1) {
-						m_batchedIndex.emplace_back(cur);
-						break;
-					}
-				}
-			}
-		};*/
-
-		void Rebatch()
+		void heapifyRender(int i)
 		{
+			int largest = i; // current sub-tree max
+
+			int left = (2 * i) + 1;
+			int right = (2 * i) + 2;
+
+			if (renders->GetCount() > left && lessComparison((*renders)[largest].get(), (*renders)[left].get())) {
+				largest = left;
+			}
+
+			if (renders->GetCount() > right && lessComparison((*renders)[largest].get(), (*renders)[right].get())) {
+				largest = right;
+			}
+
+			if (largest != i) {
+				renders->MoveItem(largest, i);
+				heapifyRender(largest); // now heapify the affected sub-tree
+			}
+		};
+
+		void Rebatch() 
+		{
+			int cur = 0;
+
 			for (unsigned int i = 0; i < renders->GetCount(); i++) {
-				if (i == 0) {
-					continue;
-				}
+				cur = i;
 
-				if ((*renders)[i - 1]->shader <= (*renders)[i]->shader
-				&& (*renders)[i - 1]->model <= (*renders)[i]->model) {
-					continue;
-				}
-
-				for (unsigned int j = 0; j < i; j++) {
-					if ((*renders)[j]->shader > (*renders)[i]->shader
-					&& (*renders)[j]->model > (*renders)[i]->model) {
-						renders->MoveItem(i, j);
+				for (unsigned int j = i + 1; j < renders->GetCount(); j++) {
+					if (lessComparison((*renders)[j].get(), (*renders)[cur].get())) {
+						cur = j;
 					}
 				}
+
+				if (i != cur)
+					renders->MoveItem(cur, i);
 			}
 		};
 	};

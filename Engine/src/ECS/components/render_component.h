@@ -2,7 +2,7 @@
 #define MODEL_COMPONENT_H
 
 #include "../_component_manager.h"
-#include "../../headers/resource_manager.h"
+#include "../../resource/resource_manager.h"
 
 typedef uint32_t modelID;
 typedef uint32_t shaderID;

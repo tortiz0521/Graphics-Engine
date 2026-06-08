@@ -1,16 +1,28 @@
 {
-    "version": 3,
-    "configurePresets": [
-      {
-        "name": "Default",
-        "generator": "Visual Studio 17 2022",
-        "binaryDir": "${sourceDir}/build",
-        "hidden": false,
-        "cacheVariables": {
-          "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-          "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
-          "CMAKE_CXX_STANDARD": "23"
-        }
+    "version": 6,
+  "configurePresets": [
+    {
+      "name": "native",
+      "generator": "Visual Studio 17 2022",
+      "hidden": false,
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+        "CMAKE_CXX_STANDARD": "23"
       }
-    ]
-  }
+    },
+
+    {
+      "name": "build-wasm",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/wasm",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK_ROOT}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten",
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_STANDARD": "23"
+      }
+    }
+  ]
+}

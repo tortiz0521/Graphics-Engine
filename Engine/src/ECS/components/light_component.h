@@ -2,7 +2,7 @@
 #define LIGHT_COMPONENT_H
 
 #include "../_component_manager.h"
-#include "../../headers/_ubo.h"
+#include "../../util/data_types.h"
 
 #include <variant>
 #include <glaze/json.hpp>

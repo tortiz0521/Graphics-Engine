@@ -1,24 +1,29 @@
 cmake_minimum_required(VERSION 3.15)
 
+project(GraphicsEngine)
+
+message(STATUS "EMSDK_ROOT = $ENV{EMSDK_ROOT}")
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "Boolean describing whether the value of CMAKE_CXX_STANDARD is a requirement." FORCE)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set this BEFORE creating the project!
-if(MSVC)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    add_compile_options(/fsanitize=address)
-    add_link_options(/fsanitize=address)
+# Platform detection message
+message(STATUS "EMSCRIPTEN = ${EMSCRIPTEN}")
+
+if(EMSCRIPTEN)
+    message(STATUS "Configuring Emscripten/WebAssembly build")
+else()
+    message(STATUS "Configuring native desktop build")
 endif()
 
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-
-#foreach(OUTPUTCONFIG Debug Release RelWithDebInfo MinSizeRel)
-#    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
-#    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_CURRENT_SOURCE_DIR}/bin/${OUTPUTCONFIG})
-#endforeach()
-
-project(GraphicsEngine)
+# Set this BEFORE creating the project!
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    #add_compile_options(/fsanitize=address)
+    #add_compile_options(/fsanitize=undefined)
+    #add_link_options(/fsanitize=address)
+endif()
 
 
 # A function used to ensure that our runtime directory for any given piece of code exists in their subdirectory, making the process of finding assets simpler.
@@ -33,4 +38,4 @@ endfunction()
 add_subdirectory(Engine)
 
 # Any games to be added to the primary directory, effectively creating a module.
-# add_subdirectory(StarterGame)
+add_subdirectory(DemoScene)

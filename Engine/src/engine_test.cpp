@@ -3,36 +3,15 @@
 #include "engine.h"
 
 void RunTestScene(std::shared_ptr<Scene> myScene);
+void RunDemoScene_no_json(std::shared_ptr<Scene> myScene);
 void RunDemoScene(std::shared_ptr<Scene> myScene);
 
 int main()
 {
-	//AssetRegistry::RegisterPath("standard");
 	std::shared_ptr<Scene> myScene = Engine::InitializeEngine(800, 600, { "demo_scene" }, "demo_scene", "../../assets/scenes/").scene;
-
-	if (true) {
-		RunDemoScene(myScene);
-		Engine::SaveAllScenes();
-	}
-
+	RunDemoScene_no_json(myScene);
+	Engine::SaveAllScenes();
 	Engine::ShutDownEngine();
-
-	/*Engine::SwitchScenes("test_scene");
-
-	Engine::SetCurrentCamera(cameras->GetEntity(0));
-
-	while (true) {
-		for (int i = 0; i < transforms->GetCount(); i++) {
-			(*transforms.get())[i]->translation = glm::vec3(i * std::cos(glm::radians(float(glfwGetTime()) * 10.0f)), (*transforms.get())[i]->translation.value.y,
-				i * std::sin(glm::radians(float(glfwGetTime()) * 10.0f))
-			);
-		}
-		Engine::Render();
-	}
-
-
-	Engine::SaveAllScenes();*/
-
 
 	return 0;
 }
@@ -106,7 +85,51 @@ void RunTestScene(std::shared_ptr<Scene> myScene)
 	//}
 }
 
+
 void RunDemoScene(std::shared_ptr<Scene> myScene)
+{
+	//Engine::SwitchScenes();
+
+	// First, get organize the data.
+	std::vector<std::shared_ptr<TransformComponent>> planets{}, moons{};
+	Entity sun = hierarchy->GetEntity(0);
+
+	for (int i = 1; i < hierarchy->GetCount(); i++) {
+		if ((*hierarchy)[i]->parent == sun) {
+			planets.emplace_back((*transforms)[i]);
+		}
+		else {
+			moons.emplace_back((*transforms)[i]);
+		}
+	}
+
+	Engine::SetCurrentCamera(cameras->GetEntity(0));
+
+	// Then, run scene!
+	while (!Engine::WindowClosed()) {
+		for (int i = 1; i < planets.size() + 1; i++) {
+			planets[i - 1]->translation = glm::vec3(
+				(2.0f * i) * std::cos(glm::radians(float(glfwGetTime()) * (i + 2.0f))),
+				0.0f,
+				(2.0f * i) * std::sin(glm::radians(float(glfwGetTime()) * (i + 2.0f)))
+			);
+		}
+
+		for (int i = 0; i < moons.size(); i++) {
+			int temp = i % 15;
+			moons[i]->translation = glm::vec3(
+				7.5f * std::cos((glm::radians((360.0f / 15.0f) * float(temp)) + glfwGetTime())),
+				0.0f,
+				7.5f * std::sin((glm::radians((360.0f / 15.0f) * float(temp)) + glfwGetTime()))
+			);
+		}
+
+		Engine::Render();
+	}
+}
+
+
+void RunDemoScene_no_json(std::shared_ptr<Scene> myScene)
 {
 	Entity sun = myScene->AddEntity();
 	std::shared_ptr<TransformComponent> sun_tc = myScene->AddComponent<TransformComponent>(sun,
@@ -136,8 +159,8 @@ void RunDemoScene(std::shared_ptr<Scene> myScene)
 		Entity p = myScene->AddEntity();
 		planets.emplace_back(myScene->AddComponent<TransformComponent>(p,
 			TransformComponent(
-				glm::vec3(5.0f * float(i), 0.0f, 5.0f * float(i)),
-				glm::vec3(0.2f),
+				glm::vec3(3.0f * float(i), 0.0f, 3.0f * float(i)),
+				glm::vec3(0.1f),
 				0.0f
 			))
 		);
@@ -156,12 +179,16 @@ void RunDemoScene(std::shared_ptr<Scene> myScene)
 
 	std::vector<std::shared_ptr<TransformComponent>> moons{};
 	for (int i = 0; i < planets.size(); i++) {
-		for (int j = 0; j < 5; j++) {
+		for (int j = 0; j < 15; j++) {
 			Entity m = myScene->AddEntity();
 			moons.emplace_back(myScene->AddComponent<TransformComponent>(m,
 				TransformComponent(
-					glm::vec3(3.0f * std::cos(glm::radians((360.0f / 5.0f) * float(j))), 0.0f, 3.0f * std::sin(glm::radians((360.0f / 5.0f) * float(j)))),
-					glm::vec3(0.2f),
+					glm::vec3(
+						7.5f * std::cos(glm::radians((360.0f / 15.0f) * float(j))),
+						-1.0f + ((2.0f / 15.0f) * j),
+						7.5f * std::sin(glm::radians((360.0f / 15.0f) * float(j)))
+					),
+					glm::vec3(0.5f),
 					0.0f
 				))
 			);
@@ -209,20 +236,20 @@ void RunDemoScene(std::shared_ptr<Scene> myScene)
 	Engine::SetCurrentCamera(cam);
 
 	while (!Engine::WindowClosed()) {
-		for (int i = 0; i < planets.size(); i++) {
-			planets[i]->translation = glm::vec3(
-				(5.0f * i) * std::cos(glm::radians(float(glfwGetTime()) * (i + 5.0f))),
+		for (int i = 1; i < planets.size() + 1; i++) {
+			planets[i - 1]->translation = glm::vec3(
+				(2.0f * i) * std::cos(glm::radians(float(glfwGetTime()) * (i + 2.0f))),
 				0.0f,
-				(5.0f * i) * std::sin(glm::radians(float(glfwGetTime()) * (i + 5.0f)))
+				(2.0f * i) * std::sin(glm::radians(float(glfwGetTime()) * (i + 2.0f)))
 			);
 		}
 
 		for (int i = 0; i < moons.size(); i++) {
-			int temp = i % 5;
+			int temp = i % 15;
 			moons[i]->translation = glm::vec3(
-				3.0f * std::cos(glm::radians((360.0f / 5.0f) * float(temp) + (glfwGetTime() * 10.0f))),
+				7.5f * std::cos((glm::radians((360.0f / 15.0f) * float(temp)) + glfwGetTime())),
 				0.0f,
-				3.0f * std::sin(glm::radians((360.0f / 5.0f) * float(temp) + (glfwGetTime() * 10.0f)))
+				7.5f * std::sin((glm::radians((360.0f / 15.0f) * float(temp)) + glfwGetTime()))
 			);
 		}
 

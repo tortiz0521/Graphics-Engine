@@ -1,8 +1,96 @@
-#include "engine.h"
+#include "../include/engine.h"
 
 #include <iostream>
 #include <algorithm>
 #include <format>
+
+namespace {
+	bool engineInit = false;
+	std::unique_ptr<Renderer> engine_Renderer{};
+	std::unique_ptr<ResourceManager> engine_RM{};
+	std::string_view json_folder_path{};
+
+	std::vector<ScenePair> EngineScenes{};
+	ScenePair currentScene{};
+	std::string buffer{};
+
+	glz::error_code ParseManifest(std::string_view scenePath, ManifestConfig& container)
+	{
+		buffer.clear();
+		auto error = glz::read_file_json(container, scenePath, buffer);
+		if (error) {
+			std::cout << "ERROR_PARSING_JSON::AT_SCENE::" << scenePath << std::endl;
+			return error.ec;
+		}
+
+		return {};
+	};
+
+	glz::error_code ParseEntities(std::string_view scenePath, SceneEntities& container)
+	{
+		buffer.clear();
+		auto error = glz::read_file_json(container, scenePath, buffer);
+		if (error) {
+			std::cout << "ERROR_PARSING_JSON::AT_SCENE::" << scenePath << std::endl;
+			return error.ec;
+		}
+
+		return {};
+	};
+
+	glz::error_code WriteEntities(ScenePair& scene)
+	{
+		SceneEntities container{};
+
+		for (Entity e : scene.scene->GetEntityList()) {
+			EntityConfig temp{};
+			if (auto it = scene.scene.get()->GetComponent<CameraComponent>(e)) {
+				temp.camera = *it.get();
+			}
+
+			if (auto it = scene.scene.get()->GetComponent<HierarchyComponent>(e)) {
+				temp.hierarchy = *it.get();
+			}
+
+			if (auto it = scene.scene.get()->GetComponent<LightComponent>(e)) {
+				temp.light = *it.get();
+			}
+
+			if (auto it = scene.scene.get()->GetComponent<RenderComponent>(e)) {
+				temp.render = *it.get();
+			}
+
+			if (auto it = scene.scene.get()->GetComponent<TransformComponent>(e)) {
+				temp.transform = *it.get();
+			}
+
+			container.entities.emplace_back(temp);
+		}
+
+		buffer.clear();
+		auto error = glz::write_file_json(container, std::string(json_folder_path) + std::string(scene.name) + ".json", buffer);
+		if (!error) {
+			std::cout << "ERROR_WRITING_TO_JSON::AT_SCENE::" << scene.name << std::endl;
+			return error.ec;
+		}
+
+		return {};
+	};
+
+	std::string_view getFileName(std::string_view path)
+	{
+		size_t off = path.find_last_of("/");
+		size_t end = path.find_last_of(".", path.length() - 1, path.length() - off - 1);
+
+		if (end == -1) {
+			return path.substr(off + 1, path.length() - 1);
+		}
+		else {
+			return path.substr(off + 1, end - off - 1);
+		}
+	}
+}
+
 
 ScenePair Engine::InitializeEngine(unsigned int WIDTH, unsigned int HEIGHT, std::string_view jsonPath)
 {
@@ -14,13 +102,13 @@ ScenePair Engine::InitializeEngine(unsigned int WIDTH, unsigned int HEIGHT, std:
 	engine_Renderer = std::make_unique<Renderer>();
 	engine_RM = std::make_unique<ResourceManager>();
 
-	engine_Renderer->InitRenderer(WIDTH, HEIGHT);
 	json_folder_path = jsonPath;
-
 	engineInit = true;
-
 	std::shared_ptr<Scene> temp = std::make_shared<Scene>();
 	EngineScenes.emplace_back(ScenePair("StartScene", temp));
+
+	engine_Renderer->InitRenderer(WIDTH, HEIGHT);
+
 	return EngineScenes.back();
 }
 
@@ -33,25 +121,38 @@ ScenePair Engine::InitializeEngine(unsigned int WIDTH, unsigned int HEIGHT, std:
 
 	engine_Renderer = std::make_unique<Renderer>();
 	engine_RM = std::make_unique<ResourceManager>();
-
 	engine_Renderer->InitRenderer(WIDTH, HEIGHT);
+
 	json_folder_path = jsonPath;
 
+	// Prepare a default start scene pair.
 	std::shared_ptr<Scene> scene = std::make_shared<Scene>();
-	ScenePair temp = ScenePair("StartScene", scene);
+	ScenePair start = ScenePair("StartScene", scene);
+
+	// Vector used to track program IDs for renderer init.
+	std::vector<uint32_t> IDs{};
+
+	// Load all scenes and identify the requested start scene.
 	for (std::string_view s : SceneNames) {
 		EngineScenes.emplace_back(Engine::LoadScene_json(s));
+		IDs.insert(IDs.end(), EngineScenes.back().scene->m_manager->m_shaderIDs.begin(), EngineScenes.back().scene->m_manager->m_shaderIDs.end());
 
-		if (std::string(s).compare(std::string(startScene)) == 0) {
-			temp.name = s;
-			temp.scene.reset();
-			temp.scene = EngineScenes.back().scene;
-			temp.scene->Load(*engine_RM.get(), *engine_Renderer.get());
+		std::string name = std::string(s);
+		if (name == std::string(startScene)) {
+			start.name = name;
+			start.scene = EngineScenes.back().scene;
+			if (start.scene) {
+				start.scene->Load(*engine_RM.get(), *engine_Renderer.get());
+			}
 		}
 	}
 
+#ifdef __EMSCRIPTEN__
+	engine_Renderer->BindUBOs(IDs);
+#endif
+
 	engineInit = true;
-	currentScene = temp;
+	currentScene = start;
 
 	return currentScene;
 }
@@ -109,18 +210,31 @@ ScenePair Engine::LoadScene_json(std::string_view sceneName)
 		std::string name = std::format("{}_{}_{}", getFileName(smc.fragment_path), getFileName(smc.vertex_path), 
 			smc.geo_path.has_value() ? getFileName(smc.geo_path.value()) : "");
 
-		std::cout << std::string(smc.vertex_path).c_str() << std::endl;
+#ifdef __EMSCRIPTEN__
+		std::string v_path = std::string(getFileName(smc.vertex_path)) + "_es300.vs";
+		std::string f_path = std::string(getFileName(smc.fragment_path)) + "_es300.fs";
+
+		std::string g_path{};
+		if (smc.geo_path.has_value())
+			g_path = std::string(getFileName(smc.geo_path.value())) + "_es300.gs";
+
 		shaderIDs.emplace_back(
-			Engine::engine_RM->LoadShader(std::string(smc.vertex_path).c_str(), std::string(smc.fragment_path).c_str(),
+			engine_RM->LoadShader(v_path.c_str(), f_path.c_str(),
+				name, g_path.empty() ? nullptr : g_path.c_str())
+		);
+#else
+		shaderIDs.emplace_back(
+			engine_RM->LoadShader(std::string(smc.vertex_path).c_str(), std::string(smc.fragment_path).c_str(),
 				name, smc.geo_path.has_value() ? std::string(smc.geo_path.value()).c_str() : nullptr)
 		);
+#endif
 	}
 
 	std::vector<uint32_t> modelIDs{};
 	for (std::string_view mm : manifest.model_manifest) {
 		AssetRegistry::RegisterPath(mm);
 		modelIDs.emplace_back(
-			Engine::engine_RM->LoadModel(mm, Engine::engine_Renderer->GetDynamicVBO())
+			engine_RM->LoadModel(mm, engine_Renderer->GetDynamicVBO())
 		);
 	}
 
@@ -128,12 +242,12 @@ ScenePair Engine::LoadScene_json(std::string_view sceneName)
 	for (TextureManifestConfig tm : manifest.texture_manifest) {
 		AssetRegistry::RegisterPath(tm.tex_path);
 		textureIDs.emplace_back(
-			Engine::engine_RM->LoadTexture_ID(std::string(tm.tex_path), tm.type)
+			engine_RM->LoadTexture_ID(std::string(tm.tex_path), tm.type)
 		);
 	}
 
-	newScene->m_manager.get()->SetShaderIDs(shaderIDs, *Engine::engine_RM.get());
-	newScene->m_manager.get()->SetModelIDs(modelIDs, *Engine::engine_RM.get());
+	newScene->m_manager.get()->SetShaderIDs(shaderIDs, *engine_RM.get());
+	newScene->m_manager.get()->SetModelIDs(modelIDs, *engine_RM.get());
 
 	// Next, load entity data
 	SceneEntities entities{};
@@ -203,19 +317,24 @@ std::shared_ptr<CameraComponent> Engine::SetCurrentCamera(Entity e)
 		return nullptr;
 	}
 
-	currentScene.scene.get()->SetCamUBO(800, 600, *Engine::engine_Renderer.get());
+	currentScene.scene.get()->SetCamUBO(800, 600, *engine_Renderer.get());
 	return temp;
 }
 
 void Engine::Render()
 {
 	if (currentScene.scene) {
-		currentScene.scene->RenderScene(*Engine::engine_Renderer.get());
-		_CrtCheckMemory();
+		currentScene.scene->RenderScene(*engine_Renderer.get());
+		//_CrtCheckMemory();
 	}
 }
 
 bool Engine::WindowClosed()
 {
+#ifdef __EMSCRIPTEN__
+	if (engine_Renderer->CloseWindow())
+		emscripten_cancel_main_loop();
+#else
 	return engine_Renderer->CloseWindow();
+#endif
 }

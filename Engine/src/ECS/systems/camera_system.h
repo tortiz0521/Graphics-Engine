@@ -7,8 +7,6 @@
 namespace CameraSystem
 {
 	namespace {
-		std::shared_ptr<CameraComponent> curCam = nullptr;
-
 		void updateCameraFront(CameraComponent& cc)
 		{
 			glm::vec3 direction;

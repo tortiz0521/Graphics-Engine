@@ -161,11 +161,11 @@ public:
 		int direction = (to > from) ? 1 : -1;
 		for (size_t i = from; i != to; i += direction) {
 			m_components[i] = std::move(m_components[i + direction]);
-			m_entities[i] = m_entities[i];
+			m_entities[i] = m_entities[i + direction];
 			m_lookup[m_entities[i]] = i;
 		}
 
-		// Lastly, move the data we want to ove into the proper index.
+		// Lastly, move the data we want to into the proper index.
 		m_components[to] = c;
 		m_entities[to] = e;
 		m_lookup[e] = to;
