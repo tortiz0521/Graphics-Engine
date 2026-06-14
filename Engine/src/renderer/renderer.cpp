@@ -10,10 +10,10 @@ void Renderer::InitRenderer(unsigned int WIDTH, unsigned int HEIGHT)
     glBufferData(GL_ARRAY_BUFFER, 100.0f * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
 
     // Initialize UBOs
-    m_dirUBO = std::make_unique<UniformBuffer<DirectionLight>>(UniformBuffer<DirectionLight>(5, 0));
-    m_pointUBO = std::make_unique<UniformBuffer<PointLight>>(UniformBuffer<PointLight>(10, 1));
-    m_spotUBO = std::make_unique<UniformBuffer<SpotLight>>(UniformBuffer<SpotLight>(10, 2));
-    m_camUBO = std::make_unique<UniformBuffer<CameraData>>(UniformBuffer<CameraData>(1, 3));
+    //m_dirUBO = std::make_unique<UniformBuffer<DirectionLight>>(UniformBuffer<DirectionLight>(5, 0));
+    //m_pointUBO = std::make_unique<UniformBuffer<PointLight>>(UniformBuffer<PointLight>(10, 1));
+    //m_spotUBO = std::make_unique<UniformBuffer<SpotLight>>(UniformBuffer<SpotLight>(10, 2));
+    //m_camUBO = std::make_unique<UniformBuffer<CameraData>>(UniformBuffer<CameraData>(1, 3));
 }
 
 void Renderer::BindUBOs(const std::vector<uint32_t>& IDs)
@@ -40,6 +40,8 @@ void Renderer::ShutDownRenderer()
 bool Renderer::CreateContext(unsigned int WIDTH, unsigned int HEIGHT)
 {
 #ifdef __EMSCRIPTEN__
+    setupWindow();
+    emscripten_webgl_make_context_current(ctx);
     emscripten_set_canvas_element_size("#canvas", WIDTH, HEIGHT);
 	glViewport(0, 0, WIDTH, HEIGHT);
     emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, true, key_callback);
@@ -79,7 +81,7 @@ bool Renderer::CreateContext(unsigned int WIDTH, unsigned int HEIGHT)
     glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 #endif
     // Tell OpenGL to use the z-buffer for depth tests!
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
     return true;
 }
 

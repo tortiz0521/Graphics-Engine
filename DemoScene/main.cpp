@@ -9,20 +9,42 @@ typedef struct {
 	std::vector<std::shared_ptr<TransformComponent>> planets;
 	std::vector<std::shared_ptr<TransformComponent>> moons;
 } userData;
+
+	#ifdef __cplusplus
+	#define EXTERN extern "C"
+	#else
+	#define EXTERN
+	#endif
 #endif
 
 void RunTestScene(std::shared_ptr<Scene> myScene);
-void RunDemoScene_no_json(std::shared_ptr<Scene> myScene);
+void RunDemoScene_no_json(std::shared_ptr<Scene> myScene, userData& data);
 void RunDemoScene(std::shared_ptr<Scene> myScene);
 
+#ifdef __EMSCRIPTEN__
+EXTERN EMSCRIPTEN_KEEPALIVE 
+#endif
 void game_loop(std::vector<std::shared_ptr<TransformComponent>> planets, std::vector<std::shared_ptr<TransformComponent>> moons);
+
 
 int main()
 {
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop([]() {
+		userData data{};
+		if (!Engine::EngineReady()) {
+			std::shared_ptr<Scene> myScene = Engine::InitializeEngine(800, 600, { "demo_scene" }, "demo_scene", "../../assets/scenes/").scene;
+			RunDemoScene_no_json(myScene, data);
+		}
+
+		game_loop(data.planets, data.moons);
+		}, 0, true);
+#else
 	std::shared_ptr<Scene> myScene = Engine::InitializeEngine(800, 600, { "demo_scene" }, "demo_scene", "../../assets/scenes/").scene;
-	RunDemoScene_no_json(myScene);
+	RunDemoScene_no_json(myScene, {});
 	//Engine::SaveAllScenes();
 	Engine::ShutDownEngine();
+#endif
 
 	return 0;
 }
@@ -121,7 +143,7 @@ void RunDemoScene(std::shared_ptr<Scene> myScene)
 }
 
 
-void RunDemoScene_no_json(std::shared_ptr<Scene> myScene)
+void RunDemoScene_no_json(std::shared_ptr<Scene> myScene, userData& data)
 {
 	Entity sun = myScene->AddEntity();
 	std::shared_ptr<TransformComponent> sun_tc = myScene->AddComponent<TransformComponent>(sun,
@@ -227,75 +249,48 @@ void RunDemoScene_no_json(std::shared_ptr<Scene> myScene)
 
 	Engine::SetCurrentCamera(cam);
 
-#ifdef __EMSCRIPTEN__
-	auto loop = [](void*) {
-		userData& data = *static_cast<userData*>(nullptr);
-		game_loop(data.planets, data.moons);
-	};
-	userData data{ planets, moons };
-	emscripten_set_main_loop_arg(loop, &data, 0, true);
-#else
-	game_loop(planets, moons);
+
+#ifndef __EMSCRIPTEN__
+	while (!Engine::WindowClosed()) {
+		game_loop(planets, moons);
+	}
 #endif
-
-	/*while (!Engine::WindowClosed()) {
-		for (int i = 1; i < planets.size() + 1; i++) {
-			planets[i - 1]->translation = glm::vec3(
-				(2.0f * i) * std::cos(glm::radians(float(glfwGetTime()) * (i + 2.0f))),
-				0.0f,
-				(2.0f * i) * std::sin(glm::radians(float(glfwGetTime()) * (i + 2.0f)))
-			);
-		}
-
-		for (int i = 0; i < moons.size(); i++) {
-			int temp = i % 15;
-			moons[i]->translation = glm::vec3(
-				7.5f * std::cos((glm::radians((360.0f / 15.0f) * float(temp)) + glfwGetTime())),
-				0.0f,
-				7.5f * std::sin((glm::radians((360.0f / 15.0f) * float(temp)) + glfwGetTime()))
-			);
-		}
-
-		Engine::Render();
-	}*/
 }
 
 void game_loop(std::vector<std::shared_ptr<TransformComponent>> planets, std::vector<std::shared_ptr<TransformComponent>> moons)
 {
-	while (!Engine::WindowClosed()) {
-		for (int i = 1; i < planets.size() + 1; i++) {
+	for (int i = 1; i < planets.size() + 1; i++) {
 #ifdef __EMSCRIPTEN__
-			planets[i - 1]->translation = glm::vec3(
-				(2.0f * i) * std::cos(glm::radians(float(emscripten_get_now() * 0.001) * (i + 2.0f))),
-				0.0f,
-				(2.0f * i) * std::sin(glm::radians(float(emscripten_get_now() * 0.001) * (i + 2.0f)))
-			);
+		planets[i - 1]->translation = glm::vec3(
+			(2.0f * i) * std::cos(glm::radians(float(emscripten_get_now() * 0.001) * (i + 2.0f))),
+			0.0f,
+			(2.0f * i) * std::sin(glm::radians(float(emscripten_get_now() * 0.001) * (i + 2.0f)))
+		);
 #else
-			planets[i - 1]->translation = glm::vec3(
-				(2.0f * i) * std::cos(glm::radians(float(glfwGetTime()) * (i + 2.0f))),
-				0.0f,
-				(2.0f * i) * std::sin(glm::radians(float(glfwGetTime()) * (i + 2.0f)))
-			);
+		planets[i - 1]->translation = glm::vec3(
+			(2.0f * i) * std::cos(glm::radians(float(glfwGetTime()) * (i + 2.0f))),
+			0.0f,
+			(2.0f * i) * std::sin(glm::radians(float(glfwGetTime()) * (i + 2.0f)))
+		);
 #endif
-		}
-
-		for (int i = 0; i < moons.size(); i++) {
-			int temp = i % 15;
-#ifdef __EMSCRIPTEN__
-			moons[i - 1]->translation = glm::vec3(
-				(2.0f * i) * std::cos(glm::radians(float(emscripten_get_now() * 0.001) * (i + 2.0f))),
-				0.0f,
-				(2.0f * i) * std::sin(glm::radians(float(emscripten_get_now() * 0.001) * (i + 2.0f)))
-			);
-#else
-			moons[i - 1]->translation = glm::vec3(
-				(2.0f * i) * std::cos(glm::radians(float(glfwGetTime()) * (i + 2.0f))),
-				0.0f,
-				(2.0f * i) * std::sin(glm::radians(float(glfwGetTime()) * (i + 2.0f)))
-			);
-#endif
-		}
-
-		Engine::Render();
 	}
+
+	for (int i = 0; i < moons.size(); i++) {
+		int temp = i % 15;
+#ifdef __EMSCRIPTEN__
+		moons[i]->translation = glm::vec3(
+			(2.0f * i) * std::cos(glm::radians(float(emscripten_get_now() * 0.001) * (i + 2.0f))),
+			0.0f,
+			(2.0f * i) * std::sin(glm::radians(float(emscripten_get_now() * 0.001) * (i + 2.0f)))
+		);
+#else
+		moons[i]->translation = glm::vec3(
+			(2.0f * i) * std::cos(glm::radians(float(glfwGetTime()) * (i + 2.0f))),
+			0.0f,
+			(2.0f * i) * std::sin(glm::radians(float(glfwGetTime()) * (i + 2.0f)))
+		);
+#endif
+	}
+
+	Engine::Render();
 }

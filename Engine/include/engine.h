@@ -22,6 +22,7 @@ struct ScenePair {
 
 namespace Engine
 {
+	bool EngineReady();
 	ScenePair InitializeEngine(unsigned int WIDTH, unsigned int HEIGHT, std::string_view jsonPath);
 	ScenePair InitializeEngine(unsigned int WIDTH, unsigned int HEIGHT, std::vector<std::string_view> SceneNames, std::string_view startScene, std::string_view jsonPath);
 

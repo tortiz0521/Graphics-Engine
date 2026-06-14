@@ -91,6 +91,10 @@ namespace {
 	}
 }
 
+bool Engine::EngineReady()
+{
+	return engineInit;
+}
 
 ScenePair Engine::InitializeEngine(unsigned int WIDTH, unsigned int HEIGHT, std::string_view jsonPath)
 {

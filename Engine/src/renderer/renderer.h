@@ -45,6 +45,14 @@ namespace {
 #ifdef __EMSCRIPTEN__
     static bool keys[512] = { false };
     static bool closeWindow = false;
+    EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx{};
+    EmscriptenWebGLContextAttributes attrs{};
+
+    void setupWindow() 
+    {
+        emscripten_webgl_init_context_attributes(&attrs);
+        ctx = emscripten_webgl_create_context("#canvas", &attrs);
+    };
 
     EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
     {
